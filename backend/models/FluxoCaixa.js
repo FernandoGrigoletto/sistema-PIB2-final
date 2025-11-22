@@ -1,37 +1,25 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../db.js");
-const Categoria = require("./Categoria.js");
+class FluxoCaixa {
+    constructor(data) {
+        this.id = data.id || null;
+        this.descricao = data.descricao;
+        this.valor = data.valor;
+        this.tipo = data.tipo;
+        this.data = data.data;
+        // Se vier do banco com join, pode ter o nome da categoria
+        this.categoria = data.categoria || null;
+        this.categoria_id = data.categoria_id || null;
+    }
 
-const FluxoCaixa = sequelize.define("FluxoCaixa", {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  descricao: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-  },
-  valor: {
-    type: DataTypes.DECIMAL(12, 2),
-    allowNull: false,
-  },
-  tipo: {
-    type: DataTypes.ENUM("entrada", "saida"),
-    allowNull: false,
-  },
-  data: {
-    type: DataTypes.DATEONLY,
-    allowNull: false,
-  },
-}, {
-  tableName: "fluxo_caixa",
-  timestamps: true,
-  createdAt: "criado_em",
-  updatedAt: false,
-});
-
-// Relacionamento
-FluxoCaixa.belongsTo(Categoria, { foreignKey: "categoria_id", as: "categoria" });
+    toJSON() {
+        return {
+            id: this.id,
+            descricao: this.descricao,
+            valor: parseFloat(this.valor), // Garante que venha como número
+            tipo: this.tipo,
+            data: this.data,
+            categoria: this.categoria // Nome da categoria para o frontend
+        };
+    }
+}
 
 module.exports = FluxoCaixa;

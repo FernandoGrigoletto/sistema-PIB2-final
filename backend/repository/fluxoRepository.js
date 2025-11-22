@@ -1,92 +1,104 @@
-const FluxoCaixa = require("../models/FluxoCaixa.js");
-const Categoria = require("../models/Categoria.js");
+const db = require('../config/database.js');
+const FluxoCaixa = require('../models/FluxoCaixa.js');
 
 class FluxoRepository {
-  // Listar todos os registros
-  async getAll() {
-    const fluxos = await FluxoCaixa.findAll({
-      include: {
-        model: Categoria,
-        as: "categoria",
-        attributes: ["nome"],
-      },
-      order: [["data", "DESC"]],
-    });
+    
+    // Auxiliar para lidar com a lógica de "Buscar ou Criar Categoria"
+    async _getOrCreateCategoriaId(nomeCategoria) {
+        // 1. Tenta achar a categoria
+        const [rows] = await db.execute('SELECT id FROM categorias WHERE nome = ?', [nomeCategoria]);
+        
+        if (rows.length > 0) {
+            return rows[0].id;
+        }
 
-    return fluxos.map(f => ({
-      id: f.id,
-      descricao: f.descricao,
-      valor: f.valor,
-      tipo: f.tipo,
-      data: f.data,
-      categoria: f.categoria ? f.categoria.nome : null,
-    }));
-  }
+        // 2. Se não achar, cria
+        const [result] = await db.execute('INSERT INTO categorias (nome) VALUES (?)', [nomeCategoria]);
+        return result.insertId;
+    }
 
-  // Criar ou obter categoria
-  async getOrCreateCategoria(nome) {
-    const [cat, created] = await Categoria.findOrCreate({
-      where: { nome },
-      defaults: { nome },
-    });
-    return cat;
-  }
+    async findAll() {
+        try {
+            // Faz o JOIN para trazer o nome da categoria junto
+            const query = `
+                SELECT f.*, c.nome as categoria 
+                FROM fluxo_caixa f 
+                LEFT JOIN categorias c ON f.categoria_id = c.id 
+                ORDER BY f.data DESC
+            `;
+            const [rows] = await db.execute(query);
+            return rows.map(row => new FluxoCaixa(row));
+        } catch (error) {
+            throw new Error(`Erro ao buscar fluxos: ${error.message}`);
+        }
+    }
 
-  // Adicionar registro
-  async add(fluxoData) {
-    const cat = await this.getOrCreateCategoria(fluxoData.categoria);
+    async findById(id) {
+        try {
+            const query = `
+                SELECT f.*, c.nome as categoria 
+                FROM fluxo_caixa f 
+                LEFT JOIN categorias c ON f.categoria_id = c.id 
+                WHERE f.id = ?
+            `;
+            const [rows] = await db.execute(query, [id]);
+            if (rows.length === 0) return null;
+            return new FluxoCaixa(rows[0]);
+        } catch (error) {
+            throw new Error(`Erro ao buscar fluxo por ID: ${error.message}`);
+        }
+    }
 
-    const fluxo = await FluxoCaixa.create({
-      descricao: fluxoData.descricao,
-      valor: fluxoData.valor,
-      tipo: fluxoData.tipo,
-      data: fluxoData.data,
-      categoria_id: cat.id,
-    });
+    async create(fluxoData) {
+        try {
+            const { descricao, valor, tipo, data, categoria } = fluxoData;
+            
+            // Resolve o ID da categoria (busca ou cria)
+            const categoriaId = await this._getOrCreateCategoriaId(categoria);
 
-    return {
-      id: fluxo.id,
-      descricao: fluxo.descricao,
-      valor: fluxo.valor,
-      tipo: fluxo.tipo,
-      data: fluxo.data,
-      categoria: cat.nome,
-    };
-  }
+            const query = `
+                INSERT INTO fluxo_caixa (descricao, valor, tipo, data, categoria_id) 
+                VALUES (?, ?, ?, ?, ?)
+            `;
+            
+            const [result] = await db.execute(query, [descricao, valor, tipo, data, categoriaId]);
+            
+            // Retorna o objeto criado
+            return await this.findById(result.insertId);
+        } catch (error) {
+            throw new Error(`Erro ao criar fluxo: ${error.message}`);
+        }
+    }
 
-  // Atualizar registro
-  async update(id, fluxoData) {
-    const fluxo = await FluxoCaixa.findByPk(id);
-    if (!fluxo) throw new Error("Registro não encontrado");
+    async update(id, fluxoData) {
+        try {
+            const { descricao, valor, tipo, data, categoria } = fluxoData;
+            
+            // Resolve o ID da categoria
+            const categoriaId = await this._getOrCreateCategoriaId(categoria);
 
-    const cat = await this.getOrCreateCategoria(fluxoData.categoria);
+            const query = `
+                UPDATE fluxo_caixa 
+                SET descricao = ?, valor = ?, tipo = ?, data = ?, categoria_id = ? 
+                WHERE id = ?
+            `;
 
-    await fluxo.update({
-      descricao: fluxoData.descricao,
-      valor: fluxoData.valor,
-      tipo: fluxoData.tipo,
-      data: fluxoData.data,
-      categoria_id: cat.id,
-    });
+            await db.execute(query, [descricao, valor, tipo, data, categoriaId, id]);
+            
+            return await this.findById(id);
+        } catch (error) {
+            throw new Error(`Erro ao atualizar fluxo: ${error.message}`);
+        }
+    }
 
-    return {
-      id: fluxo.id,
-      descricao: fluxo.descricao,
-      valor: fluxo.valor,
-      tipo: fluxo.tipo,
-      data: fluxo.data,
-      categoria: cat.nome,
-    };
-  }
-
-  // Excluir registro
-  async remove(id) {
-    const fluxo = await FluxoCaixa.findByPk(id);
-    if (!fluxo) throw new Error("Registro não encontrado");
-
-    await fluxo.destroy();
-    return true;
-  }
+    async delete(id) {
+        try {
+            const [result] = await db.execute('DELETE FROM fluxo_caixa WHERE id = ?', [id]);
+            return result.affectedRows > 0;
+        } catch (error) {
+            throw new Error(`Erro ao deletar fluxo: ${error.message}`);
+        }
+    }
 }
 
 module.exports = new FluxoRepository();

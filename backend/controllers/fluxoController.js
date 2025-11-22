@@ -1,29 +1,11 @@
-const FluxoCaixa = require("../models/FluxoCaixa.js");
-const Categoria = require("../models/Categoria.js");
+const fluxoRepository = require("../repository/fluxoRepository.js");
 
 // Listar todos os registros
 const getAllFluxos = async (req, res) => {
   try {
-    const fluxos = await FluxoCaixa.findAll({
-      include: {
-        model: Categoria,
-        as: "categoria",
-        attributes: ["nome"],
-      },
-      order: [["data", "DESC"]],
-    });
-
-    // Transformar categoria para string simples
-    const resultado = fluxos.map(f => ({
-      id: f.id,
-      descricao: f.descricao,
-      valor: f.valor,
-      tipo: f.tipo,
-      data: f.data,
-      categoria: f.categoria ? f.categoria.nome : null,
-    }));
-
-    res.json(resultado);
+    const fluxos = await fluxoRepository.findAll();
+    // O método toJSON() da classe modelo já formata corretamente
+    res.json(fluxos.map(f => f.toJSON()));
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erro ao buscar registros" });
@@ -32,32 +14,10 @@ const getAllFluxos = async (req, res) => {
 
 // Adicionar novo registro
 const addFluxo = async (req, res) => {
-  const { descricao, valor, tipo, data, categoria } = req.body;
-
   try {
-    // Verifica se a categoria existe, senão cria
-    let [cat, created] = await Categoria.findOrCreate({
-      where: { nome: categoria },
-      defaults: { nome: categoria },
-    });
-
-    // Cria o fluxo
-    const fluxo = await FluxoCaixa.create({
-      descricao,
-      valor,
-      tipo,
-      data,
-      categoria_id: cat.id,
-    });
-
-    res.status(201).json({
-      id: fluxo.id,
-      descricao: fluxo.descricao,
-      valor: fluxo.valor,
-      tipo: fluxo.tipo,
-      data: fluxo.data,
-      categoria: cat.nome,
-    });
+    // O repositório já lida com a lógica de buscar/criar categoria
+    const novoFluxo = await fluxoRepository.create(req.body);
+    res.status(201).json(novoFluxo.toJSON());
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erro ao adicionar registro" });
@@ -67,33 +27,14 @@ const addFluxo = async (req, res) => {
 // Atualizar registro
 const updateFluxo = async (req, res) => {
   const { id } = req.params;
-  const { descricao, valor, tipo, data, categoria } = req.body;
-
   try {
-    let [cat, created] = await Categoria.findOrCreate({
-      where: { nome: categoria },
-      defaults: { nome: categoria },
-    });
+    const fluxoExistente = await fluxoRepository.findById(id);
+    if (!fluxoExistente) {
+      return res.status(404).json({ message: "Registro não encontrado" });
+    }
 
-    const fluxo = await FluxoCaixa.findByPk(id);
-    if (!fluxo) return res.status(404).json({ message: "Registro não encontrado" });
-
-    await fluxo.update({
-      descricao,
-      valor,
-      tipo,
-      data,
-      categoria_id: cat.id,
-    });
-
-    res.json({
-      id: fluxo.id,
-      descricao: fluxo.descricao,
-      valor: fluxo.valor,
-      tipo: fluxo.tipo,
-      data: fluxo.data,
-      categoria: cat.nome,
-    });
+    const fluxoAtualizado = await fluxoRepository.update(id, req.body);
+    res.json(fluxoAtualizado.toJSON());
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erro ao atualizar registro" });
@@ -103,12 +44,13 @@ const updateFluxo = async (req, res) => {
 // Excluir registro
 const deleteFluxo = async (req, res) => {
   const { id } = req.params;
-
   try {
-    const fluxo = await FluxoCaixa.findByPk(id);
-    if (!fluxo) return res.status(404).json({ message: "Registro não encontrado" });
+    const fluxoExistente = await fluxoRepository.findById(id);
+    if (!fluxoExistente) {
+      return res.status(404).json({ message: "Registro não encontrado" });
+    }
 
-    await fluxo.destroy();
+    await fluxoRepository.delete(id);
     res.json({ message: "Registro excluído com sucesso" });
   } catch (error) {
     console.error(error);
