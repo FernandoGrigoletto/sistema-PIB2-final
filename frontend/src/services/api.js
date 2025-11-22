@@ -36,6 +36,15 @@ class ApiService {
     });
   }
 
+  // ... métodos existentes (login, logout, checkAuth) ...
+
+  async register(nome, email, password) {
+    return this.request("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ nome, email, password }),
+    });
+  }
+
   async logout() {
     return this.request("/auth/logout", {
       method: "POST",

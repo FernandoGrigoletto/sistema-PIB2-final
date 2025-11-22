@@ -3,13 +3,15 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
-dotenv
+// 1. Correção: Inicializar corretamente o dotenv
+dotenv.config();
 
 // Importar rotas
 import eventosRoutes from './routes/eventoRoutes.js';
 import oracaoRoutes from './routes/oracaoRoutes.js';
 import fluxoRoutes from './routes/fluxoRoutes.js'; 
-import authRoutes from './routes/authRoutes.js';
+// 2. Correção: Nome do ficheiro ajustado para coincidir com o real
+import authRoutes from './routes/auth.routes.js'; 
 
 const app = express();
 const PORT = 3000;

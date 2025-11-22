@@ -1,14 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
-import Home from './pages/Home'
-import Sidebar from './components/Sidebar'
-import Oracao from './pages/Oracao'
-import Eventos from './pages/Eventos'
-import EventoDetalhe from './pages/EventoDetalhe'
-import Login from './pages/LoginPage'
-import FluxoCaixa from './pages/FluxoCaixa'  // <-- import novo
-import AuthProvider from './components/AuthProvider'
-import ProtectedRoute from './components/ProtectedRoute'
+// ... outros imports
+import RegisterPage from './pages/RegisterPage' // Importar a nova página
 
 function App() {
   return (
@@ -18,12 +11,9 @@ function App() {
           <Sidebar />
           <main className="content">
             <Routes>
-              <Route path='/' element={<Home />} />
-              <Route path='/eventos' element={<Eventos />} />
-              <Route path='/evento/:id' element={<EventoDetalhe />} />
-              <Route path='/oracao' element={<Oracao />} />
-              <Route path='/fluxo-caixa' element={<FluxoCaixa />} />  {/* <-- rota nova */}
+              {/* ... rotas existentes ... */}
               <Route path='/login' element={<Login />} />
+              <Route path='/register' element={<RegisterPage />} /> {/* Nova rota */}
             </Routes>
           </main>
         </div>
@@ -31,6 +21,5 @@ function App() {
     </AuthProvider>
   )
 }
-
 export default App;
 
