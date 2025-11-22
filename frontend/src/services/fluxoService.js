@@ -1,35 +1,61 @@
-const STORAGE_KEY = "fluxos";
+const API_BASE_URL = 'http://localhost:3000/api/fluxo';
+
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Erro HTTP: ${response.status}`);
+  }
+  return response.json();
+};
 
 const getAll = async () => {
-  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  return data;
+  try {
+    const response = await fetch(API_BASE_URL);
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Erro ao buscar fluxos:", error);
+    throw error;
+  }
 };
 
 const add = async (fluxo) => {
-  const fluxos = await getAll();
-  fluxo.id = new Date().getTime();
-  fluxos.push(fluxo);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(fluxos));
-  return fluxo;
+  try {
+    const response = await fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fluxo),
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Erro ao adicionar fluxo:", error);
+    throw error;
+  }
 };
 
 const update = async (fluxo) => {
-  let fluxos = await getAll();
-  fluxos = fluxos.map((f) => (f.id === fluxo.id ? fluxo : f));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(fluxos));
-  return fluxo;
+  try {
+    const response = await fetch(`${API_BASE_URL}/${fluxo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fluxo),
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Erro ao atualizar fluxo:", error);
+    throw error;
+  }
 };
 
 const remove = async (id) => {
-  let fluxos = await getAll();
-  fluxos = fluxos.filter((f) => f.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(fluxos));
-  return fluxos;
+  try {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      method: 'DELETE',
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    console.error("Erro ao remover fluxo:", error);
+    throw error;
+  }
 };
 
-export default {
-  getAll,
-  add,
-  update,
-  remove,
-};
+export default { getAll, add, update, remove };
