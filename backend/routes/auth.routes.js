@@ -1,9 +1,11 @@
-const { Router } = require("express");
-const { getMe, Login } = require("../controllers/auth.controller.js");
-const { authenticate } = require("../middlewares/auth.js");
+import { Router } from 'express';
+import { getMe, Login, Logout } from '../controllers/authcontroller.js'; // Nome corrigido
+import { authenticate } from '../middlewares/auth.js';
+
 const router = Router();
 
-router.post('/', Login);
+router.post('/login', Login); // Alterado para /login ficar explicito (/api/auth/login)
+router.post('/logout', Logout);
 router.get('/me', authenticate, getMe);
 
-module.exports = router;
+export default router;

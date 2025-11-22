@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "http://localhost:3000/api"; // Base correta
 
 class ApiService {
   async request(endpoint, options = {}) {
@@ -11,25 +11,33 @@ class ApiService {
       ...options,
       headers,
     };
-    const response = await fetch(url, config);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "Erro na requisição");
+    
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || "Erro na requisição");
+      }
+      
+      return response.json().catch(() => ({}));
+    } catch (error) {
+      console.error("API Error:", error);
+      throw error;
     }
-    return response.json().catch(() => ({}));
   }
 
   async login(email, password) {
-    return this.request("/login", {
+    // Chama /api/auth/login
+    return this.request("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
-      credentials: "include",
+      credentials: "include", // Importante para receber o cookie
     });
   }
 
   async logout() {
-    return this.request("/logout", {
+    return this.request("/auth/logout", {
       method: "POST",
       credentials: "include",
     });
