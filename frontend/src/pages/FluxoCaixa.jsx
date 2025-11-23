@@ -1,6 +1,7 @@
 import { Button, Col, Container, Row, Modal, Card, Spinner } from "react-bootstrap";
 import { useState, useEffect } from "react";
-import { FaArrowUp, FaArrowDown, FaWallet, FaPlus } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaWallet, FaPlus, FaFileExcel, FaPrint } from "react-icons/fa";
+import * as XLSX from 'xlsx'; // Importar a biblioteca
 
 import FluxoList from "../components/FluxoList";
 import FluxoForm from "../components/FluxoForm";
@@ -97,21 +98,71 @@ const FluxoCaixa = () => {
     setFilteredFluxos(dados);
   };
 
+  // --- FUNÇÕES DE RELATÓRIO ---
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportExcel = () => {
+    // Formata os dados para o Excel
+    const dadosParaExcel = filteredFluxos.map(item => ({
+      "Descrição": item.descricao,
+      "Categoria": item.categoria,
+      "Data": new Date(item.data).toLocaleDateString("pt-BR"),
+      "Tipo": item.tipo === 'entrada' ? 'Entrada' : 'Saída',
+      "Valor": Number(item.valor).toFixed(2)
+    }));
+
+    // Cria a planilha
+    const ws = XLSX.utils.json_to_sheet(dadosParaExcel);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Fluxo de Caixa");
+
+    // Salva o arquivo
+    XLSX.writeFile(wb, `Relatorio_Fluxo_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`);
+  };
+
   return (
     <Container className="py-4">
-      {/* Cabeçalho e Botão Adicionar */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      {/* Cabeçalho e Botões */}
+      <div className="d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
           <h2 className="mb-0 fw-bold text-secondary">Fluxo de Caixa</h2>
           <span className="text-muted">Gerencie as finanças da igreja</span>
         </div>
-        <Button 
-          variant="success" 
-          onClick={() => { setFluxoToEdit(null); setShowForm(true); }}
-          className="d-flex align-items-center gap-2"
-        >
-          <FaPlus /> Novo Lançamento
-        </Button>
+        
+        <div className="d-flex gap-2">
+          <Button 
+            variant="outline-secondary" 
+            onClick={handlePrint}
+            title="Imprimir Relatório"
+          >
+            <FaPrint /> Imprimir
+          </Button>
+          
+          <Button 
+            variant="outline-success" 
+            onClick={handleExportExcel}
+            title="Baixar Excel"
+          >
+            <FaFileExcel /> Excel
+          </Button>
+
+          <Button 
+            variant="success" 
+            onClick={() => { setFluxoToEdit(null); setShowForm(true); }}
+            className="d-flex align-items-center gap-2"
+          >
+            <FaPlus /> Novo
+          </Button>
+        </div>
+      </div>
+
+      {/* Título apenas para impressão */}
+      <div className="d-none d-print-block text-center mb-4">
+        <h3>Relatório Financeiro - PIB</h3>
+        <p>Gerado em: {new Date().toLocaleString()}</p>
       </div>
 
       {/* Cards de Resumo (Dashboard) */}
@@ -124,7 +175,7 @@ const FluxoCaixa = () => {
                   <span className="text-muted small text-uppercase fw-bold">Entradas</span>
                   <h4 className="mb-0 text-success mt-1">R$ {totalEntradas.toFixed(2)}</h4>
                 </div>
-                <div className="bg-success bg-opacity-10 p-3 rounded-circle text-success">
+                <div className="bg-success bg-opacity-10 p-3 rounded-circle text-success no-print">
                   <FaArrowUp />
                 </div>
               </div>
@@ -139,7 +190,7 @@ const FluxoCaixa = () => {
                   <span className="text-muted small text-uppercase fw-bold">Saídas</span>
                   <h4 className="mb-0 text-danger mt-1">R$ {totalSaidas.toFixed(2)}</h4>
                 </div>
-                <div className="bg-danger bg-opacity-10 p-3 rounded-circle text-danger">
+                <div className="bg-danger bg-opacity-10 p-3 rounded-circle text-danger no-print">
                   <FaArrowDown />
                 </div>
               </div>
@@ -156,7 +207,7 @@ const FluxoCaixa = () => {
                     R$ {saldoAtual.toFixed(2)}
                   </h4>
                 </div>
-                <div className={`bg-opacity-10 p-3 rounded-circle ${saldoAtual >= 0 ? 'bg-primary text-primary' : 'bg-warning text-warning'}`}>
+                <div className={`bg-opacity-10 p-3 rounded-circle ${saldoAtual >= 0 ? 'bg-primary text-primary' : 'bg-warning text-warning'} no-print`}>
                   <FaWallet />
                 </div>
               </div>
@@ -165,24 +216,28 @@ const FluxoCaixa = () => {
         </Col>
       </Row>
 
-      {/* Formulário (Modal ou Inline - aqui usando Collapse logic via state) */}
+      {/* Formulário */}
       {showForm && (
-        <Card className="mb-4 shadow-sm border-0">
-          <Card.Header className="bg-white py-3">
-            <h5 className="mb-0">{fluxoToEdit ? 'Editar Lançamento' : 'Novo Lançamento'}</h5>
-          </Card.Header>
-          <Card.Body>
-            <FluxoForm 
-              onSave={handleSaveFluxo} 
-              fluxo={fluxoToEdit} 
-              onCancel={() => setShowForm(false)}
-            />
-          </Card.Body>
-        </Card>
+        <div className="no-print">
+          <Card className="mb-4 shadow-sm border-0">
+            <Card.Header className="bg-white py-3">
+              <h5 className="mb-0">{fluxoToEdit ? 'Editar Lançamento' : 'Novo Lançamento'}</h5>
+            </Card.Header>
+            <Card.Body>
+              <FluxoForm 
+                onSave={handleSaveFluxo} 
+                fluxo={fluxoToEdit} 
+                onCancel={() => setShowForm(false)}
+              />
+            </Card.Body>
+          </Card>
+        </div>
       )}
 
       {/* Filtros */}
-      <FluxoFiltro categorias={categorias} onFilter={handleFilter} />
+      <div className="no-print">
+        <FluxoFiltro categorias={categorias} onFilter={handleFilter} />
+      </div>
 
       {/* Lista de Registros */}
       {loading ? (
@@ -191,12 +246,17 @@ const FluxoCaixa = () => {
         <FluxoList 
           fluxos={filteredFluxos} 
           onDelete={handleConfirmDelete}
-          onEdit={handleEditClick} // Você precisará adicionar essa prop no FluxoList
+          onEdit={handleEditClick}
         />
       )}
 
+      {/* Resumo final para impressão */}
+      <div className="d-none d-print-block mt-4 text-end">
+        <p><strong>Saldo Final do Período: R$ {saldoAtual.toFixed(2)}</strong></p>
+      </div>
+
       {/* Modal de Exclusão */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="no-print">
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Exclusão</Modal.Title>
         </Modal.Header>

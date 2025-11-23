@@ -43,3 +43,46 @@
     min-height: auto;
   }
 }
+/* Estilos de Impressão */
+@media print {
+  /* Esconder Sidebar, Botões, Filtros e Elementos de Navegação */
+  .sidebar-container, 
+  .no-print, 
+  button, 
+  .btn,
+  .navbar,
+  .modal {
+    display: none !important;
+  }
+
+  /* Ajustar layout para tela cheia */
+  .app-container {
+    display: block !important;
+    height: auto !important;
+  }
+
+  .content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    background-color: white !important;
+    overflow: visible !important;
+  }
+
+  /* Garantir que tabelas e textos fiquem pretos e legíveis */
+  body {
+    color: black !important;
+    background: white !important;
+  }
+
+  .card {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    break-inside: avoid; /* Evita quebrar card no meio da página */
+  }
+
+  /* Mostrar elementos específicos de impressão */
+  .d-print-block {
+    display: block !important;
+  }
+}
