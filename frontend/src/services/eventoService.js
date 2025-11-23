@@ -19,6 +19,7 @@ const getAll = async (filtro = {}) => {
         }
         const url = params.toString() ? `${API_BASE_URL}?${params.toString()}` : API_BASE_URL;
 
+        // GET é público, não precisa de credentials, mas não faz mal ter.
         const response = await fetch(url);
         const result = await handleResponse(response);
 
@@ -41,8 +42,6 @@ const getById=async(id)=>{
         console.error(`Erro ao buscar evento ${id}: `, error);
         throw error;
     }
-   
-    
 }
 
 const add = async (evento) => {
@@ -51,15 +50,15 @@ const add = async (evento) => {
         formData.append('titulo', evento.titulo);
         formData.append('description', evento.description);
         formData.append('category', evento.category);
-        formData.append('brand', evento.brand); // data
+        formData.append('brand', evento.brand);
         if (evento.arquivo) {
             formData.append('arquivo', evento.arquivo);
         }
 
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
-            // Não defina Content-Type header manualmente com FormData, o browser faz isso
-            body: formData, 
+            body: formData,
+            credentials: 'include' // ADICIONADO: Importante para Admin
         })
         const result = await handleResponse(response);
         return { ...result.data }
@@ -70,7 +69,6 @@ const add = async (evento) => {
     }
 }
 
- 
 const update = async (evento) => {
     try {
         const formData = new FormData();
@@ -79,16 +77,14 @@ const update = async (evento) => {
         formData.append('category', evento.category);
         formData.append('brand', evento.brand);
 
-        // Verifica se o arquivo é um objeto File (nova imagem selecionada) antes de enviar
         if (evento.arquivo && evento.arquivo instanceof File) {
             formData.append('arquivo', evento.arquivo);
         }
 
         const response = await fetch(`${API_BASE_URL}/${evento.id}`, {
             method: 'PUT',
-            // Remova o cabeçalho 'Content-Type': 'application/json'
-            // O navegador define automaticamente o boundary do multipart/form-data
-            body: formData, 
+            body: formData,
+            credentials: 'include' // ADICIONADO: Importante para Admin
         });
 
         const result = await handleResponse(response);
@@ -100,10 +96,11 @@ const update = async (evento) => {
     }
 }
 
-const remove =async(id)=>{
+const remove = async(id)=>{
     try {
         const response = await fetch(`${API_BASE_URL}/${id}`,{
             method:'DELETE',
+            credentials: 'include' // ADICIONADO: Importante para Admin
         });
         const result = await handleResponse(response);
         return result.message;
@@ -111,18 +108,15 @@ const remove =async(id)=>{
     } catch (error){
         console.error(`Erro ao remover evento ${id}`,error)
         throw error;
-
     }
-
 }
 
 const eventoService ={
-getAll,
-getById,
-update,
-add,
-remove
-
+    getAll,
+    getById,
+    update,
+    add,
+    remove
 }
 
 export default eventoService;

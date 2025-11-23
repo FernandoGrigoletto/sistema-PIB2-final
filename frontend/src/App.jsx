@@ -1,46 +1,58 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
+import AuthProvider from './components/AuthProvider';
+import Sidebar from './components/Sidebar';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// Páginas
+// --- IMPORTAÇÕES QUE FALTAVAM ---
 import Home from './pages/Home';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import Eventos from './pages/Eventos';
 import EventoDetalhe from './pages/EventoDetalhe';
 import Oracao from './pages/Oracao';
-import FluxoCaixa from './pages/FluxoCaixa';
-import Login from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import FluxoCaixa from './pages/FluxoCaixa'; // Importante para a rota de admin
 
-// Componentes
-import Sidebar from './components/Sidebar';
-import AuthProvider from './components/AuthProvider'; // Importado apenas uma vez agora
-import ProtectedRoute from './components/ProtectedRoute'; // Importado caso queira proteger rotas
+import './App.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <div className="app-container">
           <Sidebar />
-          <main className="content">
+          <div className="content">
             <Routes>
-              {/* Rotas do Sistema */}
-              <Route path='/' element={<Home />} />
-              <Route path='/eventos' element={<Eventos />} />
-              <Route path='/evento/:id' element={<EventoDetalhe />} />
-              <Route path='/oracao' element={<Oracao />} />
-              <Route path='/fluxo-caixa' element={<FluxoCaixa />} />
+              {/* Rotas Públicas */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
               
-              {/* Rotas de Autenticação */}
-              <Route path='/login' element={<Login />} />
-              <Route path='/register' element={<RegisterPage />} />
-              <Route path='/forgot-password' element={<ForgotPasswordPage />} />
+              {/* Eventos (Público para ver, protegido internamente para editar) */}
+              <Route path="/eventos" element={<Eventos />} />
+              <Route path="/eventos/:id" element={<EventoDetalhe />} />
+              
+              {/* Rotas Protegidas (Requer Login) */}
+              <Route path="/oracoes" element={
+                <ProtectedRoute>
+                  <Oracao />
+                </ProtectedRoute>
+              } />
+
+              {/* Rota de Administrador (Requer Login + Permissão) */}
+              <Route path="/fluxo-caixa" element={
+                <ProtectedRoute roles={['admin', 'operador']}>
+                  <FluxoCaixa />
+                </ProtectedRoute>
+              } />
+
             </Routes>
-          </main>
+          </div>
         </div>
-      </Router>
-    </AuthProvider>
-  )
+      </AuthProvider>
+    </Router>
+  );
 }
 
 export default App;

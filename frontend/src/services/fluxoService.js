@@ -10,7 +10,8 @@ const handleResponse = async (response) => {
 
 const getAll = async () => {
   try {
-    const response = await fetch(API_BASE_URL);
+    // ADICIONADO: credentials: 'include'
+    const response = await fetch(API_BASE_URL, { credentials: 'include' });
     return await handleResponse(response);
   } catch (error) {
     console.error("Erro ao buscar fluxos:", error);
@@ -24,6 +25,7 @@ const add = async (fluxo) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fluxo),
+      credentials: 'include' // ADICIONADO
     });
     return await handleResponse(response);
   } catch (error) {
@@ -38,6 +40,7 @@ const update = async (fluxo) => {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fluxo),
+      credentials: 'include' // ADICIONADO
     });
     return await handleResponse(response);
   } catch (error) {
@@ -50,6 +53,7 @@ const remove = async (id) => {
   try {
     const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: 'DELETE',
+      credentials: 'include' // ADICIONADO
     });
     return await handleResponse(response);
   } catch (error) {

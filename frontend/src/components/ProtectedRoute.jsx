@@ -1,35 +1,24 @@
+// frontend/src/components/ProtectedRoute.jsx
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-const ProtectedRoute = ({ children, roles = [] }) => {
+const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, loading } = useAuth();
 
-  // Mostra loading enquanto verifica autenticação
   if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Carregando...</span>
-        </div>
-      </div>
-    );
+    return <div>Carregando...</div>;
   }
 
-  // Se não estiver logado, redireciona para login
+  // 1. Se não estiver logado, manda pro login
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" />;
   }
 
-  // Se tem roles específicas, verifica se o usuário tem permissão
-  if (roles.length > 0 && !roles.includes(user.role)) {
-    return (
-      <div className="container mt-5">
-        <div className="alert alert-danger">
-          <h4>Acesso Negado</h4>
-          <p>Você não tem permissão para acessar esta página.</p>
-        </div>
-      </div>
-    );
+  // 2. Se a rota exige um cargo específico (ex: admin) e o usuário não tem
+  if (requiredRole && !requiredRole.includes(user.role)) {
+    // Redireciona para a Home ou uma página de "Acesso Negado"
+    alert("Acesso restrito a administradores."); // Opcional
+    return <Navigate to="/" />;
   }
 
   return children;
