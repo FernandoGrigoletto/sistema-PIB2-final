@@ -1,14 +1,12 @@
-const express = require('express');
-const oracoesController = require('../controllers/oracoesController.js');
+import { Router } from 'express';
+import oracoesController from '../controllers/oracoesController.js';
 
+const router = Router();
 
-const router = express.Router();
+router.get('/', oracoesController.getAll);
+router.get('/:id', oracoesController.getById);
+router.post('/', oracoesController.create);
+router.put('/:id', oracoesController.update);
+router.delete('/:id', oracoesController.delete);
 
-router.get('/',oracoesController.getAll)
-router.get('/:id',oracoesController.getById)
-router.post('/',oracoesController.create)
-router.put('/:id',oracoesController.update)
-router.delete('/:id',oracoesController.delete)
-
-
-module.exports=router
+export default router;

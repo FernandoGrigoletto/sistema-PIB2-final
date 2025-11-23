@@ -1,67 +1,39 @@
-const db = require('../config/database.js');
-const Oracao = require('../models/oracoes.js');
+import db from '../config/database.js';
+import Oracao from '../models/oracoes.js';
 
-class OracaoRepository{
-    async findAll(){
-
-        try {
-            const [rows] = await db.execute('SELECT * FROM oracao');
-            return rows.map(rows => new Oracao(rows))
-        } catch (error){
-            throw new Error(`Erro ao buscar orações: ${error.message}`);
-
-        }
+class OracaoRepository {
+    async findAll() {
+        const [rows] = await db.execute('SELECT * FROM oracao ORDER BY data DESC');
+        return rows.map(row => new Oracao(row));
     }
 
-    async findById(id){
-        
-        try {
-            const [rows] = await db.execute('SELECT * FROM oracao WHERE id = ?', [id]);
-            if (rows.length === 0) return null;
-            return new Oracao(rows[0]);
-
-        }catch (error){
-            throw new Error(`Erro ao buscar orações: ${error.message}`);
-
-        }
-    }
-    
-
-    async create (oracaoData){
-        try {
-            const {nome, contato, pedido, data} = oracaoData;
-            const [result] = await db.execute('INSERT INTO oracao (nome, contato, pedido, data) VALUES(?,?,?,?)',
-                [nome, contato, pedido, data]
-            )
-            return await this.findById(result.insertId)
-        }catch (error){
-            throw new Error(`Erro ao criar oracão: ${error.message}`)
-        }
+    async findById(id) {
+        const [rows] = await db.execute('SELECT * FROM oracao WHERE id = ?', [id]);
+        if (rows.length === 0) return null;
+        return new Oracao(rows[0]);
     }
 
-    async update(id,oracaoData){
-        try{
-            const {nome, contato, pedido, data} = oracaoData;
-            await db.execute('UPDATE oracao SET nome = ?, contato = ?, pedido = ?, data=? WHERE id = ?',
-                [nome, contato, pedido, data, id]
-            );
-            return await this.findById(id);
-        }catch (error){
-            throw new Error(`Erro ao atualizar oração: ${error.message}`);
-
-        }
+    async create(oracaoData) {
+        const { nome, contato, pedido, data } = oracaoData;
+        const [result] = await db.execute(
+            'INSERT INTO oracao (nome, contato, pedido, data) VALUES (?, ?, ?, ?)',
+            [nome, contato, pedido, data]
+        );
+        return await this.findById(result.insertId);
     }
 
-    async delete(id){
-        try {
-            const [result] = await db.execute('DELETE FROM oracao WHERE id = ?',[id]);
-            return result.affectedRows >0;
-            
-        }catch(error){
-            throw new Error(`Erro ao deletar oração: ${error.message}`);
-
-        }
+    async update(id, oracaoData) {
+        const { nome, contato, pedido, data } = oracaoData;
+        await db.execute(
+            'UPDATE oracao SET nome = ?, contato = ?, pedido = ?, data = ? WHERE id = ?',
+            [nome, contato, pedido, data, id]
+        );
+        return await this.findById(id);
     }
 
+    async delete(id) {
+        const [result] = await db.execute('DELETE FROM oracao WHERE id = ?', [id]);
+        return result.affectedRows > 0;
+    }
 }
-module.exports = new OracaoRepository();
+export default new OracaoRepository();

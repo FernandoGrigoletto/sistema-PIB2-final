@@ -1,84 +1,56 @@
-const db = require('../config/database.js');
-const Evento = require('../models/eventos.js');
+import db from '../config/database.js';
+import Evento from '../models/eventos.js';
 
-class EventoRepository{
-    async findAll(filter={}){
+class EventoRepository {
+    async findAll(filter = {}) {
+        let query = 'SELECT * FROM eventos';
+        const params = [];
+        const conditions = [];
 
-        try {
-            let query='select*from eventos';
-            const condicoes=[];
-            const params=[];            
-
-            if(filter.category){
-                condicoes.push('category = ?');
-                params.push(filter.category)
-            }
-            if(filter.description){
-                condicoes.push('description = ?');
-                params.push(filter.description)
-            }
-            
-            if(condicoes.length>0){
-                query += ' WHERE ' + condicoes.join(' AND ')
-            }
-            const [rows] = await db.execute(query,params)
-
-            return rows.map(row => new Evento(row))
-
-        }catch(error){
-            throw new Error('Erro ao buscar evento')
-        }        
-    }
-
-    async findById(id){
-        
-        try {
-            const [rows] = await db.execute('SELECT * FROM eventos WHERE id = ?', [id]);
-            if (rows.length === 0) return null;
-            return new Evento(rows[0]);
-
-        }catch (error){
-            throw new Error(`Erro ao buscar evento: ${error.message}`);
-
+        if (filter.category) {
+            conditions.push('category = ?');
+            params.push(filter.category);
         }
-    }
-    
-
-    async create (eventoData){
-        try {
-            const {description, category, brand} = eventoData;
-            const [result] = await db.execute('INSERT INTO eventos (description, category, brand) VALUES(?,?,?)',
-                [description, category, brand]
-            )
-            return await this.findById(result.insertId)
-        }catch (error){
-            throw new Error(`Erro ao criar evento: ${error.message}`)
+        if (filter.description) {
+            conditions.push('description LIKE ?');
+            params.push(`%${filter.description}%`);
         }
-    }
 
-    async update(id,eventoData){
-        try{
-            const {description, category, brand} = eventoData;
-            await db.execute('UPDATE eventos SET description = ?, category = ?, brand = ? WHERE id = ?',
-                [description, category, brand, id]
-            );
-            return await this.findById(id);
-        }catch (error){
-            throw new Error(`Erro ao atualizar evento: ${error.message}`);
-
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
         }
+
+        const [rows] = await db.execute(query, params);
+        return rows.map(row => new Evento(row));
     }
 
-    async delete(id){
-        try {
-            const [result] = await db.execute('DELETE FROM eventos WHERE id = ?',[id]);
-            return result.affectedRows >0;
-            
-        }catch(error){
-            throw new Error(`Erro ao deletar evento: ${error.message}`);
-
-        }
+    async findById(id) {
+        const [rows] = await db.execute('SELECT * FROM eventos WHERE id = ?', [id]);
+        if (rows.length === 0) return null;
+        return new Evento(rows[0]);
     }
 
+    async create(eventoData) {
+        const { description, category, brand } = eventoData;
+        const [result] = await db.execute(
+            'INSERT INTO eventos (description, category, brand) VALUES (?, ?, ?)',
+            [description, category, brand]
+        );
+        return await this.findById(result.insertId);
+    }
+
+    async update(id, eventoData) {
+        const { description, category, brand } = eventoData;
+        await db.execute(
+            'UPDATE eventos SET description = ?, category = ?, brand = ? WHERE id = ?',
+            [description, category, brand, id]
+        );
+        return await this.findById(id);
+    }
+
+    async delete(id) {
+        const [result] = await db.execute('DELETE FROM eventos WHERE id = ?', [id]);
+        return result.affectedRows > 0;
+    }
 }
-module.exports = new EventoRepository();
+export default new EventoRepository();

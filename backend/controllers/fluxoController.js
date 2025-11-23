@@ -1,10 +1,8 @@
-const fluxoRepository = require("../repository/fluxoRepository.js");
+import fluxoRepository from "../repository/fluxoRepository.js";
 
-// Listar todos os registros
-const getAllFluxos = async (req, res) => {
+export const getAllFluxos = async (req, res) => {
   try {
     const fluxos = await fluxoRepository.findAll();
-    // O método toJSON() da classe modelo já formata corretamente
     res.json(fluxos.map(f => f.toJSON()));
   } catch (error) {
     console.error(error);
@@ -12,10 +10,8 @@ const getAllFluxos = async (req, res) => {
   }
 };
 
-// Adicionar novo registro
-const addFluxo = async (req, res) => {
+export const addFluxo = async (req, res) => {
   try {
-    // O repositório já lida com a lógica de buscar/criar categoria
     const novoFluxo = await fluxoRepository.create(req.body);
     res.status(201).json(novoFluxo.toJSON());
   } catch (error) {
@@ -24,43 +20,30 @@ const addFluxo = async (req, res) => {
   }
 };
 
-// Atualizar registro
-const updateFluxo = async (req, res) => {
-  const { id } = req.params;
+export const updateFluxo = async (req, res) => {
   try {
-    const fluxoExistente = await fluxoRepository.findById(id);
-    if (!fluxoExistente) {
-      return res.status(404).json({ message: "Registro não encontrado" });
-    }
+    const { id } = req.params;
+    const exists = await fluxoRepository.findById(id);
+    if (!exists) return res.status(404).json({ message: "Não encontrado" });
 
-    const fluxoAtualizado = await fluxoRepository.update(id, req.body);
-    res.json(fluxoAtualizado.toJSON());
+    const atualizado = await fluxoRepository.update(id, req.body);
+    res.json(atualizado.toJSON());
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erro ao atualizar registro" });
+    res.status(500).json({ message: "Erro ao atualizar" });
   }
 };
 
-// Excluir registro
-const deleteFluxo = async (req, res) => {
-  const { id } = req.params;
+export const deleteFluxo = async (req, res) => {
   try {
-    const fluxoExistente = await fluxoRepository.findById(id);
-    if (!fluxoExistente) {
-      return res.status(404).json({ message: "Registro não encontrado" });
-    }
+    const { id } = req.params;
+    const exists = await fluxoRepository.findById(id);
+    if (!exists) return res.status(404).json({ message: "Não encontrado" });
 
     await fluxoRepository.delete(id);
-    res.json({ message: "Registro excluído com sucesso" });
+    res.json({ message: "Excluído com sucesso" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erro ao excluir registro" });
+    res.status(500).json({ message: "Erro ao excluir" });
   }
-};
-
-module.exports = {
-  getAllFluxos,
-  addFluxo,
-  updateFluxo,
-  deleteFluxo,
 };
