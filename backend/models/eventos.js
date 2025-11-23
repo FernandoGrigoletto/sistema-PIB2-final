@@ -5,7 +5,7 @@ class Evento {
         this.description = data.description;
         this.category = data.category;
         this.brand = data.brand; 
-        this.arquivo = data.arquivo; // <--- Adicionado
+        this.arquivo = data.arquivo || null; // <--- Adicionado
     }
 
     validate() {

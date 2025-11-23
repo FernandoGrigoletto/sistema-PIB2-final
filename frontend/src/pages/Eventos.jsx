@@ -5,7 +5,7 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 import EventoForm from "../components/EventoForm";
 import eventoService from "../services/eventoService";
 import EventoList from "../components/EventoList";
-import EventoFiltro from "../components/EventoFiltro";
+// import EventoFiltro from "../components/EventoFiltro"; // Comentado conforme seu código original
 
 const Eventos = () => {
   const [showForm, setShowForm] = useState(false);
@@ -31,9 +31,10 @@ const Eventos = () => {
     loadEvento();
   }, []);
 
-  // Filtro de busca simples pelo texto
+  // Filtro de busca simples pelo texto (Título, Descrição ou Categoria)
   useEffect(() => {
     const results = eventos.filter(evento => 
+      (evento.titulo && evento.titulo.toLowerCase().includes(searchTerm.toLowerCase())) || // Busca por Título adicionada
       evento.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       evento.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -42,6 +43,7 @@ const Eventos = () => {
 
   const handleSaveEvento = async (evento) => {
     try {
+      // O objeto 'evento' aqui já vem com 'titulo' e 'arquivo' do EventoForm
       if (evento.id > 0) {
         await eventoService.update(evento);
       } else {
@@ -66,10 +68,14 @@ const Eventos = () => {
   };
 
   const handleDeleteEvento = async () => {
-    await eventoService.remove(eventoToDelete);
-    await loadEvento();
-    setShowDeleteModal(false);
-    setEventoToDelete(null);
+    try {
+        await eventoService.remove(eventoToDelete);
+        await loadEvento();
+        setShowDeleteModal(false);
+        setEventoToDelete(null);
+    } catch (error) {
+        console.error("Erro ao excluir:", error);
+    }
   };
 
   return (
@@ -102,7 +108,7 @@ const Eventos = () => {
         </Row>
       )}
 
-      {/* Barra de Ferramentas (Busca e Filtros) */}
+      {/* Barra de Ferramentas (Busca) */}
       <Row className="mb-4 g-3 align-items-center">
         <Col md={8}>
            <InputGroup>
@@ -110,7 +116,7 @@ const Eventos = () => {
               <FaSearch className="text-muted" />
             </InputGroup.Text>
             <Form.Control 
-              placeholder="Buscar evento por nome ou categoria..." 
+              placeholder="Buscar evento por título, descrição ou categoria..." 
               className="border-start-0"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -118,9 +124,7 @@ const Eventos = () => {
            </InputGroup>
         </Col>
         <Col md={4} className="text-end">
-           {/* Aqui você pode manter o componente EventoFiltro se quiser filtros avançados, 
-               ou simplificar apenas com a busca acima */}
-           {/* <EventoFiltro onFiltersChange={setEventos} /> */}
+           {/* Espaço reservado para filtros avançados futuros */}
         </Col>
       </Row>
 

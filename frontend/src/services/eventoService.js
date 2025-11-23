@@ -71,25 +71,32 @@ const add = async (evento) => {
 }
 
  
-const update= async (evento)=>{
+const update = async (evento) => {
     try {
-        const eventoData = {...evento, id: parseInt(evento.id)};
-        const response = await fetch(`${API_BASE_URL}/${evento.id}`,{
-            method: 'PUT',
-            headers:{
-                'Content-Type':'application/json',
-            },
-            body: JSON.stringify(eventoData),
-        })
-        const result = await handleResponse(response);
-        return {
-            ...result.data
-        };
+        const formData = new FormData();
+        formData.append('titulo', evento.titulo);
+        formData.append('description', evento.description);
+        formData.append('category', evento.category);
+        formData.append('brand', evento.brand);
 
-    } catch (error){
+        // Verifica se o arquivo é um objeto File (nova imagem selecionada) antes de enviar
+        if (evento.arquivo && evento.arquivo instanceof File) {
+            formData.append('arquivo', evento.arquivo);
+        }
+
+        const response = await fetch(`${API_BASE_URL}/${evento.id}`, {
+            method: 'PUT',
+            // Remova o cabeçalho 'Content-Type': 'application/json'
+            // O navegador define automaticamente o boundary do multipart/form-data
+            body: formData, 
+        });
+
+        const result = await handleResponse(response);
+        return { ...result.data };
+
+    } catch (error) {
         console.error(`Erro ao atualizar evento ${evento.id}:`, error);
         throw error;
-
     }
 }
 
