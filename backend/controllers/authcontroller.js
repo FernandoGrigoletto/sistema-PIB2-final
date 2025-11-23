@@ -1,16 +1,19 @@
 import jwt from 'jsonwebtoken';
 import db from '../config/database.js';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 // Login
 export async function Login(req, res) {
     const { email, password } = req.body;
     
     try {
-        const [rows] = await db.execute('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
+        // Busca usuário pelo email
+        const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
         const user = rows[0];
 
-        if (!user) {
+        // Se usuário não existe OU a senha não bate (compara a senha enviada com o hash do banco)
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ error: 'Credenciais inválidas' });
         }
 
@@ -33,7 +36,8 @@ export async function Login(req, res) {
         });
 
     } catch (error) {
-        return res.status(500).json({ error: 'Erro no servidor: ' + error.message });
+        console.error("Erro no Login:", error);
+        return res.status(500).json({ error: 'Erro no servidor' });
     }
 }
 
@@ -51,15 +55,19 @@ export async function Register(req, res) {
             return res.status(400).json({ error: 'Este email já está cadastrado' });
         }
 
+        // CRIPTOGRAFA A SENHA ANTES DE SALVAR
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         await db.execute(
             'INSERT INTO users (nome, email, password, role) VALUES (?, ?, ?, ?)',
-            [nome, email, password, 'membro']
+            [nome, email, hashedPassword, 'membro']
         );
 
         return res.status(201).json({ success: true, message: 'Usuário cadastrado com sucesso!' });
 
     } catch (error) {
-        return res.status(500).json({ error: 'Erro ao cadastrar: ' + error.message });
+        console.error("Erro no Cadastro:", error);
+        return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
     }
 }
 
@@ -109,7 +117,6 @@ export async function ForgotPassword(req, res) {
         
         console.log("==================================================");
         console.log("📧 EMAIL DE RECUPERAÇÃO (SIMULADO):");
-        console.log(`Para: ${email}`);
         console.log(`Link: ${resetLink}`);
         console.log("==================================================");
 
