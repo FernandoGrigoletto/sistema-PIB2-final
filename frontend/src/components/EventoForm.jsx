@@ -1,139 +1,139 @@
-import { useEffect } from "react";
-import { useState } from "react";
-import { Card, Col, Form, FormGroup, Row,Button } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Card, Col, Form, Row, Button } from "react-bootstrap";
 
-const EventoForm = ({ onSave, onCancel, evento:eventoToEdit }) => {
+const EventoForm = ({ onSave, onCancel, evento: eventoToEdit }) => {
   const [evento, setEvento] = useState({
+    titulo: "",
     description: "",
     category: "Culto",
-    brand: "",
-
+    brand: "", // Data
+    arquivo: null // Para o arquivo
   });
 
   const [validated, setValidated] = useState(false);
 
-  useEffect(()=>{
-    if(eventoToEdit){
+  useEffect(() => {
+    if (eventoToEdit) {
       setEvento({
-        id:eventoToEdit.id,
+        id: eventoToEdit.id,
+        titulo: eventoToEdit.titulo || "",
         description: eventoToEdit.description || "",
         category: eventoToEdit.category || "",
-        brand: eventoToEdit.brand || "",
+        brand: eventoToEdit.brand ? new Date(eventoToEdit.brand).toISOString().split('T')[0] : "",
+        arquivo: null, // Reset arquivo no edit pois é input file
       });
-    }else{
+    } else {
       setEvento({
+        titulo: "",
         description: "",
         category: "Culto",
         brand: "",
+        arquivo: null
       });
     }
-
-  },[eventoToEdit])
+  }, [eventoToEdit]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEvento((prev) => ({
-      ...prev,
-      [name]: name === "dailyValue" ? parseFloat(value) || "" : value,
-    }));
+    const { name, value, files } = e.target;
+    if (name === 'arquivo') {
+        setEvento((prev) => ({ ...prev, arquivo: files[0] }));
+    } else {
+        setEvento((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
-
     if (form.checkValidity() === false) {
       e.stopPropagation();
       setValidated(true);
       return;
     }
-
     onSave(evento);
-
-    setEvento({
-      description: "",
-      category: "Culto",
-      brand: "",
-     
-    });
-
     setValidated(false);
   };
 
   return (
     <Card>
       <Card.Header className="bg-primary text-white">
-        <h5 className="mb-0">Adicionar Evento</h5>
+        <h5 className="mb-0">{eventoToEdit ? "Editar Evento" : "Adicionar Evento"}</h5>
       </Card.Header>
       <Card.Body>
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Row>
+            <Col md={12}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Título</Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="titulo"
+                        value={evento.titulo}
+                        onChange={handleChange}
+                        required
+                        placeholder="Ex: Culto da Virada"
+                    />
+                </Form.Group>
+            </Col>
+            
+            <Col md={12}>
+              <Form.Group className="mb-3">
+                <Form.Label>Descrição</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  name="description"
+                  value={evento.description}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
 
-              <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Descrição</Form.Label>
-              <Form.Control
-                type="text"
-                name="description"
-                value={evento.description}
-                onChange={handleChange}
-                required
-              />
-
-              <Form.Control.Feedback type="invalid">
-                Por favor informe uma descrição.
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-
-
-          <Col md={4}>
-                     <Form.Group className="mb-3">
-                        <Form.Label>Categoria</Form.Label>
-                        <Form.Select
-                         name="category"
-                         value={evento.category}
-                         onChange={handleChange}
-                          required
-                        >
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Categoria</Form.Label>
+                <Form.Select
+                  name="category"
+                  value={evento.category}
+                  onChange={handleChange}
+                  required
+                >
                   <option value="Culto">Culto</option>
                   <option value="Festa">Festa</option>
                   <option value="Reunião">Reunião</option>
                   <option value="Outros">Outros</option>
-                        </Form.Select>
-                     </Form.Group>
-                 </Col>
+                </Form.Select>
+              </Form.Group>
+            </Col>
 
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Data</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="brand"
+                  value={evento.brand}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
 
-          
-          </Row>
-        
-        
-        <Row>
-               <Col md={4}>
+            <Col md={12}>
                 <Form.Group className="mb-3">
-              <Form.Label>Data</Form.Label>
-              <Form.Control
-                type="date"
-                name="brand"
-                value={evento.brand}
-                onChange={handleChange}
-                required
-              />
+                    <Form.Label>Imagem ou Vídeo</Form.Label>
+                    <Form.Control 
+                        type="file" 
+                        name="arquivo" 
+                        onChange={handleChange} 
+                        accept="image/*,video/*"
+                    />
+                </Form.Group>
+            </Col>
+          </Row>
 
-              <Form.Control.Feedback type="invalid">
-                Por favor informe uma Data.
-              </Form.Control.Feedback>
-            </Form.Group>
-               </Col>
-
-                 
-
-                      
-        </Row>
-           
-
-              <div className="d-flex justify-content-end gap-2">
+          <div className="d-flex justify-content-end gap-2">
             <Button variant="secondary" onClick={onCancel}>
               Cancelar
             </Button>

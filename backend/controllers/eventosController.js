@@ -13,13 +13,25 @@ class EventosController {
 
     async create(req, res) {
         try {
-            const evento = new Evento(req.body);
+            // Copia os dados enviados no corpo da requisição (título, descrição, etc)
+            const dados = { ...req.body };
+
+            // Verifica se o Multer processou um arquivo e adiciona o nome dele aos dados
+            if (req.file) {
+                dados.arquivo = req.file.filename;
+            }
+
+            const evento = new Evento(dados);
             const errors = evento.validate();
-            if (errors.length > 0) return res.status(400).json({ success: false, errors });
+            
+            if (errors.length > 0) {
+                return res.status(400).json({ success: false, errors });
+            }
 
             const newEvent = await eventoRepository.create(evento);
             res.status(201).json({ success: true, data: newEvent.toJSON() });
         } catch (error) {
+            console.error("Erro ao criar evento:", error);
             res.status(500).json({ success: false, message: error.message });
         }
     }

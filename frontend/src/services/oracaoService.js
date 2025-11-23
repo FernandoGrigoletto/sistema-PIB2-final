@@ -1,4 +1,4 @@
-const API_BASE_URL ='http://localhost:3000/api/oracao'
+const API_BASE_URL ='http://localhost:3000/api/oracoes'
 
 const handleResponse = async (response)=>{
     if (!response.ok){

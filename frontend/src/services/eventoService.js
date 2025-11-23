@@ -45,25 +45,29 @@ const getById=async(id)=>{
     
 }
 
-const add= async(evento)=>{
+const add = async (evento) => {
     try {
-        const eventoData = {...evento};
-        const response = await fetch(API_BASE_URL,{
+        const formData = new FormData();
+        formData.append('titulo', evento.titulo);
+        formData.append('description', evento.description);
+        formData.append('category', evento.category);
+        formData.append('brand', evento.brand); // data
+        if (evento.arquivo) {
+            formData.append('arquivo', evento.arquivo);
+        }
+
+        const response = await fetch(API_BASE_URL, {
             method: 'POST',
-            headers:{
-                'Content-Type':'application/json',
-            },
-            body: JSON.stringify(eventoData),
+            // Não defina Content-Type header manualmente com FormData, o browser faz isso
+            body: formData, 
         })
         const result = await handleResponse(response);
-        return {...result.data}
+        return { ...result.data }
 
-    } catch (error){
+    } catch (error) {
         console.error('Erro ao adicionar evento:', error);
         throw error;
-
     }
-
 }
 
  

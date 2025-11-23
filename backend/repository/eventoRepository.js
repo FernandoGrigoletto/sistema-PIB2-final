@@ -30,21 +30,33 @@ class EventoRepository {
         return new Evento(rows[0]);
     }
 
+    // ATUALIZADO: Incluindo titulo e arquivo
     async create(eventoData) {
-        const { description, category, brand } = eventoData;
+        const { titulo, description, category, brand, arquivo } = eventoData;
         const [result] = await db.execute(
-            'INSERT INTO eventos (description, category, brand) VALUES (?, ?, ?)',
-            [description, category, brand]
+            'INSERT INTO eventos (titulo, description, category, brand, arquivo) VALUES (?, ?, ?, ?, ?)',
+            [titulo, description, category, brand, arquivo]
         );
         return await this.findById(result.insertId);
     }
 
+    // ATUALIZADO: Incluindo titulo e arquivo (opcional)
     async update(id, eventoData) {
-        const { description, category, brand } = eventoData;
-        await db.execute(
-            'UPDATE eventos SET description = ?, category = ?, brand = ? WHERE id = ?',
-            [description, category, brand, id]
-        );
+        const { titulo, description, category, brand, arquivo } = eventoData;
+        
+        let query = 'UPDATE eventos SET titulo = ?, description = ?, category = ?, brand = ?';
+        let params = [titulo, description, category, brand];
+
+        // Só atualiza o arquivo se um novo foi enviado
+        if (arquivo) {
+            query += ', arquivo = ?';
+            params.push(arquivo);
+        }
+
+        query += ' WHERE id = ?';
+        params.push(id);
+
+        await db.execute(query, params);
         return await this.findById(id);
     }
 
