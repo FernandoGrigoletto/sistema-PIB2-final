@@ -27,6 +27,13 @@ class ApiService {
     }
   }
 
+  async forgotPassword(email) {
+    return this.request("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
   async login(email, password) {
     // Chama /api/auth/login
     return this.request("/auth/login", {
