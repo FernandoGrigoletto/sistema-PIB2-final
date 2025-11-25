@@ -7,7 +7,7 @@ import {
   FaArrowRight, 
   FaImage, 
   FaPlus,
-  FaFacebook // Importar ícone do Facebook se desejar
+  FaFacebook
 } from "react-icons/fa";
 
 import bannerImage from '../assets/banner-home.jpg';
@@ -15,7 +15,6 @@ import oracaoService from "../services/oracaoService";
 import eventoService from "../services/eventoService";
 
 const Home = () => {
-  // ... (manter todo o código de estado e useEffect igual)
   const [recentOracoes, setRecentOracoes] = useState([]);
   const [nextEvents, setNextEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +58,7 @@ const Home = () => {
   return (
     <div className="home-page bg-light">
       
-      {/* ... (Hero Section e Cards de Acesso Rápido mantidos iguais) ... */}
+      {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-bg" style={{ backgroundImage: `url(${bannerImage})` }}></div>
         <div className="hero-overlay"></div>
@@ -69,6 +68,7 @@ const Home = () => {
         </Container>
       </section>
 
+      {/* Cards de Acesso Rápido */}
       <Container className="cards-container">
         <Row className="g-4 justify-content-center">
           <Col md={6}>
@@ -106,11 +106,11 @@ const Home = () => {
         </Row>
       </Container>
 
-      {/* ... (Seção de Conteúdo: Eventos e Mural mantidos iguais) ... */}
+      {/* Seção de Conteúdo: Eventos e Mural */}
       <Container className="py-5 mt-4">
         <Row className="g-5">
+          {/* Lista de Eventos */}
           <Col lg={7}>
-             {/* ... Código da lista de eventos ... */}
              <div className="d-flex align-items-center justify-content-between mb-4">
               <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">Próximos Eventos</h3>
               <Link to="/eventos" className="text-primary fw-bold text-decoration-none small">Ver todos →</Link>
@@ -146,8 +146,8 @@ const Home = () => {
             )}
           </Col>
 
+          {/* Mural de Oração */}
           <Col lg={5}>
-            {/* ... Código do Mural de Oração ... */}
             <div className="d-flex align-items-center justify-content-between mb-4">
               <h3 className="fw-bold text-dark m-0 border-start border-4 border-success ps-3">Mural de Oração</h3>
             </div>
@@ -181,10 +181,12 @@ const Home = () => {
         </Row>
       </Container>
 
-      {/* --- NOVA SEÇÃO: FACEBOOK --- */}
-      <Container className="py-5 mb-4">
+      {/* --- SEÇÃO FACEBOOK AJUSTADA (QUADRO) --- */}
+      <Container className="py-5 mb-5">
         <Row className="justify-content-center">
-          <Col md={12}>
+          {/* Limitamos a largura para criar o efeito de destaque centralizado */}
+          <Col md={10} lg={8} xl={6}>
+            
             <div className="d-flex align-items-center justify-content-between mb-4">
               <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">
                 Acompanhe no Facebook
@@ -199,19 +201,32 @@ const Home = () => {
               </a>
             </div>
             
-            <Card className="border-0 shadow-sm overflow-hidden bg-white">
-              <Card.Body className="p-0 d-flex justify-content-center bg-light">
-                <iframe 
-                  src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fpibosvaldocruz&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
-                  width="500" 
-                  height="600" 
-                  style={{border: 'none', overflow: 'hidden'}} 
-                  scrolling="no" 
-                  frameBorder="0" 
-                  allowFullScreen={true} 
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  title="Facebook PIB Osvaldo Cruz"
-                ></iframe>
+            {/* O "Quadro" Externo */}
+            <Card className="border-0 shadow-lg bg-light" style={{ borderRadius: '1rem' }}>
+              <Card.Body className="p-3 text-center">
+                
+                {/* A "Moldura" Interna Branca */}
+                <div className="bg-white p-2 rounded shadow-sm d-inline-block" style={{ maxWidth: '100%' }}>
+                  <div style={{ overflow: 'hidden', maxWidth: '500px', margin: '0 auto' }}>
+                    <iframe 
+                      src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fpibosvaldocruz&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                      width="100%"
+                      height="600" 
+                      style={{border: 'none', overflow: 'hidden', display: 'block'}} 
+                      scrolling="no" 
+                      frameBorder="0" 
+                      allowFullScreen={true} 
+                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                      title="Facebook PIB Osvaldo Cruz"
+                    ></iframe>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-muted small fst-italic">
+                  <FaArrowRight className="me-1 text-primary" size={10} />
+                  Role dentro do quadro para ver postagens antigas.
+                </div>
+
               </Card.Body>
             </Card>
           </Col>

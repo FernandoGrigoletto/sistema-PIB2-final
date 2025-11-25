@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Card, Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
+// Removemos o Link, pois o admin não precisa ir para login
+import { Card, Form, Button, Container, Col, Alert } from "react-bootstrap";
 import apiService from "../services/api";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({ nome: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  // navigate não é estritamente necessário se formos apenas limpar o form, 
+  // mas você pode usar para voltar à Home se quiser.
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,8 +25,13 @@ const RegisterPage = () => {
     setLoading(true);
     try {
       await apiService.register(formData.nome, formData.email, formData.password);
-      alert("Cadastro realizado com sucesso! Faça login.");
-      navigate("/login");
+      
+      // ALTERAÇÃO: Mensagem adequada para o admin
+      alert("Usuário cadastrado com sucesso!");
+      
+      // ALTERAÇÃO: Limpar o formulário para permitir novo cadastro
+      setFormData({ nome: "", email: "", password: "", confirmPassword: "" });
+      
     } catch (err) {
       setError(err.message || "Erro ao cadastrar");
     } finally {
@@ -35,41 +41,65 @@ const RegisterPage = () => {
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-      <Col md={5}>
+      <Col md={6}> {/* Aumentei um pouco a largura para md=6 */}
         <Card className="shadow border-0">
           <Card.Body className="p-5">
-            <h2 className="text-center mb-4 fw-bold text-primary">Criar Conta</h2>
+            {/* ALTERAÇÃO: Título mais adequado */}
+            <h2 className="text-center mb-4 fw-bold text-primary">Cadastrar Novo Usuário</h2>
+            
             {error && <Alert variant="danger">{error}</Alert>}
             
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-3">
                 <Form.Label>Nome Completo</Form.Label>
-                <Form.Control type="text" name="nome" required onChange={handleChange} />
+                <Form.Control 
+                    type="text" 
+                    name="nome" 
+                    value={formData.nome} // Importante: vincular ao estado para limpar depois
+                    required 
+                    onChange={handleChange} 
+                />
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Form.Label>Email</Form.Label>
-                <Form.Control type="email" name="email" required onChange={handleChange} />
+                <Form.Control 
+                    type="email" 
+                    name="email" 
+                    value={formData.email}
+                    required 
+                    onChange={handleChange} 
+                />
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Form.Label>Senha</Form.Label>
-                <Form.Control type="password" name="password" required onChange={handleChange} />
+                <Form.Control 
+                    type="password" 
+                    name="password" 
+                    value={formData.password}
+                    required 
+                    onChange={handleChange} 
+                />
               </Form.Group>
 
               <Form.Group className="mb-4">
                 <Form.Label>Confirmar Senha</Form.Label>
-                <Form.Control type="password" name="confirmPassword" required onChange={handleChange} />
+                <Form.Control 
+                    type="password" 
+                    name="confirmPassword" 
+                    value={formData.confirmPassword}
+                    required 
+                    onChange={handleChange} 
+                />
               </Form.Group>
 
               <Button type="submit" className="w-100 btn-primary" disabled={loading}>
-                {loading ? "Cadastrando..." : "Cadastrar"}
+                {loading ? "Cadastrando..." : "Cadastrar Usuário"}
               </Button>
             </Form>
 
-            <div className="text-center mt-3">
-              <small>Já tem uma conta? <Link to="/login" className="fw-bold">Faça Login</Link></small>
-            </div>
+            {/* ALTERAÇÃO: Link de "Já tem conta" removido */}
           </Card.Body>
         </Card>
       </Col>

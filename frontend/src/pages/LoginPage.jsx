@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../hooks/useAuth"; // Hook personalizado
 import { Navigate, Link } from "react-router-dom";
 import { Container, Col, Card, Form, Button, Alert } from "react-bootstrap";
-import { FaSignInAlt, FaUserPlus } from "react-icons/fa"; // Ícones opcionais
+import { FaSignInAlt } from "react-icons/fa"; // Ícone de cadastro removido
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -74,9 +74,8 @@ const LoginPage = () => {
                 />
               </Form.Group>
 
-              {/* Link de "Esqueceu a senha?" adicionado aqui */}
               <div className="text-end mb-4">
-                <Link to="/forgot-password" className="text-decoration-none small text-muted">
+                <Link to="/recuperar-senha" className="text-decoration-none small text-muted">
                   Esqueceu a senha?
                 </Link>
               </div>
@@ -91,14 +90,8 @@ const LoginPage = () => {
               </Button>
             </Form>
 
-            <div className="text-center border-top pt-3 mt-3">
-              <small className="text-muted">
-                Não possui uma conta? <br/>
-                <Link to="/register" className="text-decoration-none fw-bold d-inline-flex align-items-center gap-1">
-                  <FaUserPlus size={12} /> Cadastre-se aqui
-                </Link>
-              </small>
-            </div>
+            {/* Link de cadastro foi removido daqui conforme solicitado */}
+            
           </Card.Body>
         </Card>
       </Col>

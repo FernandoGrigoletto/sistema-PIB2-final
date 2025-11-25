@@ -6,7 +6,8 @@ import {
   FaPray, 
   FaMoneyBillWave, 
   FaSignOutAlt, 
-  FaUserCircle 
+  FaUserCircle,
+  FaUserPlus // 1. Importação do novo ícone
 } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 
@@ -27,15 +28,15 @@ const Sidebar = () => {
     }`;
   };
 
-  // Verificando se é admin
+  // Verificando roles (papéis de usuário)
   const isAdmin = user && (user.role === 'admin' || user.role === 'operador');
+  const isSuperAdmin = user && user.role === 'admin'; // 2. Apenas o admin principal pode criar usuários
 
   return (
     <div className="d-flex flex-column flex-shrink-0 bg-white sidebar-container border-end">
       
-      {/* --- AQUI: LOGO NO CABEÇALHO --- */}
+      {/* Cabeçalho com Logo */}
       <div className="d-flex align-items-center p-3 border-bottom gap-2">
-        {/* Imagem do Logo */}
         <img 
             src="/logo-igreja.jpg" 
             alt="Logo" 
@@ -46,6 +47,7 @@ const Sidebar = () => {
         </span>
       </div>
 
+      {/* Menu de Navegação */}
       <Nav className="flex-column mb-auto mt-2">
         <Nav.Item>
           <NavLink to="/" className={getNavLinkClass}>
@@ -65,6 +67,7 @@ const Sidebar = () => {
           </NavLink>
         </Nav.Item>
 
+        {/* Link para Fluxo de Caixa (Admin e Operador) */}
         {isAdmin && (
           <Nav.Item>
             <NavLink to="/fluxo-caixa" className={getNavLinkClass}>
@@ -72,8 +75,18 @@ const Sidebar = () => {
             </NavLink>
           </Nav.Item>
         )}
+
+        {/* 3. Link Novo Usuário (Apenas Super Admin) */}
+        {isSuperAdmin && (
+          <Nav.Item>
+            <NavLink to="/register" className={getNavLinkClass}>
+              <FaUserPlus /> Novo Usuário
+            </NavLink>
+          </Nav.Item>
+        )}
       </Nav>
 
+      {/* Rodapé do Sidebar (Perfil do Usuário) */}
       <div className="border-top p-3 bg-light mt-auto">
         {user ? (
           <div className="d-flex align-items-center justify-content-between">

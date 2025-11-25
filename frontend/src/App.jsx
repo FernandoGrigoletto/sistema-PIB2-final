@@ -15,20 +15,21 @@ import FluxoCaixa from './pages/FluxoCaixa';
 
 import './App.css';
 
+// ... importações (manter iguais)
+
 function App() {
   return (
     <Router>
       <AuthProvider>
         <div className="app-container">
           <Sidebar />
-          {/* 2. Adicionar classes flex para empurrar o footer para baixo se necessário */}
           <div className="content d-flex flex-column min-vh-100">
             <div className="flex-grow-1">
               <Routes>
                 {/* Rotas Públicas */}
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                {/* REMOVIDO DAQUI: Route path="/register" ... */}
                 <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
                 
                 {/* Eventos */}
@@ -38,18 +39,23 @@ function App() {
                 {/* Rota de Oração */}
                 <Route path="/oracao" element={<Oracao />} />
 
-                {/* Rota de Admin */}
+                {/* Rotas de Admin */}
                 <Route path="/fluxo-caixa" element={
                   <ProtectedRoute roles={['admin', 'operador']}>
                     <FluxoCaixa />
                   </ProtectedRoute>
                 } />
+
+                {/* ALTERAÇÃO AQUI: Adicionado Cadastro de Usuários apenas para Admin */}
+                <Route path="/register" element={
+                  <ProtectedRoute roles={['admin']}>
+                    <RegisterPage />
+                  </ProtectedRoute>
+                } />
+
               </Routes>
             </div>
-            
-            {/* 3. Inserir o Componente Footer aqui */}
             <Footer />
-            
           </div>
         </div>
       </AuthProvider>

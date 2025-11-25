@@ -49,6 +49,7 @@ class ApiService {
     return this.request("/auth/register", {
       method: "POST",
       body: JSON.stringify({ nome, email, password }),
+      credentials: "include", // <--- ADICIONAR ISSO PARA ENVIAR O COOKIE DO ADMIN
     });
   }
 
