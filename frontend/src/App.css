@@ -223,3 +223,15 @@
 .date-box {
   border-radius: 12px 0 0 12px;
 }
+
+/* ... estilos anteriores ... */
+
+.content {
+  flex: 1;
+  background-color: #f8f9fa;
+  overflow-y: auto; /* Garante que o conteúdo role se for maior que a tela */
+  display: flex;    /* Adicionado para suportar o layout do footer */
+  flex-direction: column;
+}
+
+/* ... restante do CSS ... */

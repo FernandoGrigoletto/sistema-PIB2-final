@@ -1,13 +1,18 @@
-import { Button, Col, Container, Row, Modal, Card } from "react-bootstrap";
+import { Button, Col, Container, Row, Modal } from "react-bootstrap";
 import { useState, useEffect } from "react";
-import { FaPlus, FaPray } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
+import { useAuth } from "../hooks/useAuth"; // Import do hook
 
 import OracaoList from "../components/OracaoList";
 import oracaoService from "../services/oracaoService";
 import OracaoForm from "../components/OracaoForm";
-// import OracaoFiltro from "../components/OracaoFiltro"; // Opcional se quiser manter
 
 const Oracoes = () => {
+  const { user } = useAuth(); // Obtém o usuário do contexto
+  
+  // Verifica se é Admin ou Operador
+  const isAdmin = user && (user.role === 'admin' || user.role === 'operador');
+
   const [showForm, setShowForm] = useState(false);
   const [oracoes, setOracoes] = useState([]);
   const [oracaoToDelete, setOracaoToDelete] = useState(null);
@@ -16,7 +21,6 @@ const Oracoes = () => {
   const loadOracao = async () => {
     try {
       const dados = await oracaoService.getAll();
-      // Ordenar por data mais recente
       const sorted = dados.sort((a, b) => new Date(b.data) - new Date(a.data));
       setOracoes(sorted);
     } catch (error) {
@@ -56,7 +60,6 @@ const Oracoes = () => {
 
   return (
     <Container className="py-4">
-      {/* Cabeçalho */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-0 fw-bold text-secondary">Mural de Oração</h2>
@@ -71,7 +74,6 @@ const Oracoes = () => {
         </Button>
       </div>
 
-      {/* Formulário Colapsável ou Card */}
       {showForm && (
         <Row className="mb-4">
           <Col lg={8} className="mx-auto">
@@ -80,14 +82,17 @@ const Oracoes = () => {
         </Row>
       )}
 
-      {/* Lista */}
       <Row>
         <Col>
-          <OracaoList oracao={oracoes} onDelete={handleConfirmDelete} />
+          {/* Passamos a prop isAdmin para a lista */}
+          <OracaoList 
+            oracao={oracoes} 
+            onDelete={isAdmin ? handleConfirmDelete : null} // Só admin pode deletar
+            isAdmin={isAdmin} // Nova propriedade para controlar visibilidade do contato
+          />
         </Col>
       </Row>
 
-      {/* Modal Confirmação */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar exclusão</Modal.Title>

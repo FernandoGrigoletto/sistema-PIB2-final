@@ -1,7 +1,7 @@
 import { Button, Card, Row, Col, Badge } from "react-bootstrap";
 import { FaTrash, FaUser, FaPhone, FaCalendarAlt, FaQuoteLeft } from "react-icons/fa";
 
-const OracaoList = ({ oracao, onDelete }) => {
+const OracaoList = ({ oracao, onDelete, isAdmin }) => { // Recebe isAdmin
   if (oracao.length === 0) {
     return (
       <div className="text-center p-5 bg-white rounded shadow-sm">
@@ -24,7 +24,7 @@ const OracaoList = ({ oracao, onDelete }) => {
                   <span className="fw-bold text-dark">{item.nome}</span>
                 </div>
                 <Badge bg="light" text="dark" className="border fw-normal d-flex align-items-center gap-1">
-                  <FaCalendarAlt size={10} /> {new Date(item.data).toLocaleDateString("pt-BR")}
+                  <FaCalendarAlt size={10} /> {new Date(item.data).toLocaleDateString("pt-BR", {timeZone: 'UTC'})}
                 </Badge>
               </div>
 
@@ -37,22 +37,25 @@ const OracaoList = ({ oracao, onDelete }) => {
 
               <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
                 <small className="text-muted d-flex align-items-center gap-1">
-                  {item.contato && (
+                  {/* ALTERAÇÃO AQUI: Só mostra se isAdmin for true E tiver contato */}
+                  {isAdmin && item.contato && (
                     <>
                       <FaPhone size={12} /> {item.contato}
                     </>
                   )}
                 </small>
                 
-                <Button
-                  size="sm"
-                  variant="outline-danger"
-                  onClick={() => onDelete(item.id)}
-                  className="border-0"
-                  title="Remover Pedido"
-                >
-                  <FaTrash /> Remover
-                </Button>
+                {onDelete && (
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={() => onDelete(item.id)}
+                    className="border-0"
+                    title="Remover Pedido"
+                  >
+                    <FaTrash /> Remover
+                  </Button>
+                )}
               </div>
             </Card.Body>
           </Card>

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthProvider from './components/AuthProvider';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
+import Footer from './components/Footer'; // <--- 1. Importar o Footer
 
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -20,33 +21,35 @@ function App() {
       <AuthProvider>
         <div className="app-container">
           <Sidebar />
-          <div className="content">
-            <Routes>
-              {/* Rotas Públicas */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
-              
-              {/* Eventos */}
-              <Route path="/eventos" element={<Eventos />} />
-              <Route path="/evento/:id" element={<EventoDetalhe />} />
-              
-              {/* CORREÇÃO: Rota alterada para /oracao (singular) para bater com o link da Home/Sidebar */}
-              <Route path="/oracao" element={
-                <ProtectedRoute>
-                  <Oracao />
-                </ProtectedRoute>
-              } />
+          {/* 2. Adicionar classes flex para empurrar o footer para baixo se necessário */}
+          <div className="content d-flex flex-column min-vh-100">
+            <div className="flex-grow-1">
+              <Routes>
+                {/* Rotas Públicas */}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
+                
+                {/* Eventos */}
+                <Route path="/eventos" element={<Eventos />} />
+                <Route path="/evento/:id" element={<EventoDetalhe />} />
+                
+                {/* Rota de Oração */}
+                <Route path="/oracao" element={<Oracao />} />
 
-              {/* Rota de Admin */}
-              <Route path="/fluxo-caixa" element={
-                <ProtectedRoute roles={['admin', 'operador']}>
-                  <FluxoCaixa />
-                </ProtectedRoute>
-              } />
-
-            </Routes>
+                {/* Rota de Admin */}
+                <Route path="/fluxo-caixa" element={
+                  <ProtectedRoute roles={['admin', 'operador']}>
+                    <FluxoCaixa />
+                  </ProtectedRoute>
+                } />
+              </Routes>
+            </div>
+            
+            {/* 3. Inserir o Componente Footer aqui */}
+            <Footer />
+            
           </div>
         </div>
       </AuthProvider>

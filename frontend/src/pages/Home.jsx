@@ -7,6 +7,7 @@ import {
   FaArrowRight, 
   FaImage, 
   FaPlus,
+  FaFacebook // Importar ícone do Facebook se desejar
 } from "react-icons/fa";
 
 import bannerImage from '../assets/banner-home.jpg';
@@ -14,6 +15,7 @@ import oracaoService from "../services/oracaoService";
 import eventoService from "../services/eventoService";
 
 const Home = () => {
+  // ... (manter todo o código de estado e useEffect igual)
   const [recentOracoes, setRecentOracoes] = useState([]);
   const [nextEvents, setNextEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,22 +59,18 @@ const Home = () => {
   return (
     <div className="home-page bg-light">
       
-      {/* --- HERO SECTION (Banner) --- */}
+      {/* ... (Hero Section e Cards de Acesso Rápido mantidos iguais) ... */}
       <section className="hero-section">
         <div className="hero-bg" style={{ backgroundImage: `url(${bannerImage})` }}></div>
         <div className="hero-overlay"></div>
-        
         <Container className="position-relative z-2 text-center text-white h-100 d-flex flex-column justify-content-center align-items-center">
           <h1 className="display-3 fw-bold mb-3 hero-title">Primeira Igreja Batista em Osvaldo Cruz - SP</h1>
           <p className="lead fs-4 mb-4 hero-subtitle">Igreja, o lugar aonde pessoas imperfeitas descobrem que ninguém é perfeito aqui na terra,<br/>mas também aprendem que o amor pode superar essas imperfeições.</p>
         </Container>
       </section>
 
-      {/* --- CARDS DE ACESSO RÁPIDO --- */}
       <Container className="cards-container">
         <Row className="g-4 justify-content-center">
-          
-          {/* Card 1: Eventos (Metade da tela) */}
           <Col md={6}>
             <Card className="h-100 border-0 shadow-lg feature-card text-center">
               <Card.Body className="p-4 d-flex flex-column align-items-center">
@@ -89,8 +87,6 @@ const Home = () => {
               </Card.Body>
             </Card>
           </Col>
-
-          {/* Card 2: Oração (Metade da tela) */}
           <Col md={6}>
             <Card className="h-100 border-0 shadow-lg feature-card text-center">
               <Card.Body className="p-4 d-flex flex-column align-items-center">
@@ -107,21 +103,18 @@ const Home = () => {
               </Card.Body>
             </Card>
           </Col>
-
         </Row>
       </Container>
 
-      {/* --- SEÇÃO DE CONTEÚDO --- */}
+      {/* ... (Seção de Conteúdo: Eventos e Mural mantidos iguais) ... */}
       <Container className="py-5 mt-4">
         <Row className="g-5">
-          
-          {/* Próximos Eventos */}
           <Col lg={7}>
-            <div className="d-flex align-items-center justify-content-between mb-4">
+             {/* ... Código da lista de eventos ... */}
+             <div className="d-flex align-items-center justify-content-between mb-4">
               <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">Próximos Eventos</h3>
               <Link to="/eventos" className="text-primary fw-bold text-decoration-none small">Ver todos →</Link>
             </div>
-
             {nextEvents.length > 0 ? (
               <div className="d-flex flex-column gap-3">
                 {nextEvents.map((evt) => (
@@ -153,12 +146,11 @@ const Home = () => {
             )}
           </Col>
 
-          {/* Mural de Oração */}
           <Col lg={5}>
+            {/* ... Código do Mural de Oração ... */}
             <div className="d-flex align-items-center justify-content-between mb-4">
               <h3 className="fw-bold text-dark m-0 border-start border-4 border-success ps-3">Mural de Oração</h3>
             </div>
-
             <Card className="border-0 shadow-sm">
               <Card.Body className="p-0">
                 {recentOracoes.length > 0 ? (
@@ -186,9 +178,46 @@ const Home = () => {
               </Card.Body>
             </Card>
           </Col>
-
         </Row>
       </Container>
+
+      {/* --- NOVA SEÇÃO: FACEBOOK --- */}
+      <Container className="py-5 mb-4">
+        <Row className="justify-content-center">
+          <Col md={12}>
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">
+                Acompanhe no Facebook
+              </h3>
+              <a 
+                href="https://www.facebook.com/pibosvaldocruz/?locale=pt_BR" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-outline-primary btn-sm fw-bold"
+              >
+                <FaFacebook className="me-2"/> Visitar Página
+              </a>
+            </div>
+            
+            <Card className="border-0 shadow-sm overflow-hidden bg-white">
+              <Card.Body className="p-0 d-flex justify-content-center bg-light">
+                <iframe 
+                  src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fpibosvaldocruz&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                  width="500" 
+                  height="600" 
+                  style={{border: 'none', overflow: 'hidden'}} 
+                  scrolling="no" 
+                  frameBorder="0" 
+                  allowFullScreen={true} 
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  title="Facebook PIB Osvaldo Cruz"
+                ></iframe>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+
     </div>
   );
 };
