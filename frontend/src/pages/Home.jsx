@@ -1,8 +1,19 @@
-import { Container, Row, Col, Card, Button, Badge, Spinner } from "react-bootstrap";
 import { useEffect, useState } from "react";
+import { Container, Row, Col, Card, Button, Badge, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
-// ADICIONADO: FaPlus na importação abaixo
-import { FaCalendarAlt, FaPray, FaMoneyBillWave, FaArrowRight, FaVideo, FaImage, FaPlus } from "react-icons/fa";
+import { 
+  FaCalendarAlt, 
+  FaPray, 
+  FaMoneyBillWave, 
+  FaArrowRight, 
+  FaVideo, 
+  FaImage, 
+  FaPlus,
+  FaUserPlus 
+} from "react-icons/fa";
+
+// Importando a imagem do banner
+import bannerImage from '../assets/banner-home.jpg';
 
 // Services
 import oracaoService from "../services/oracaoService";
@@ -64,178 +75,149 @@ const Home = () => {
   }
 
   return (
-    <Container className="py-5">
-      {/* Seção de Boas-vindas */}
-      <div className="mb-5 p-5 bg-primary text-white rounded shadow-sm position-relative overflow-hidden">
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 className="display-4 fw-bold">Bem-vindo!</h1>
-          <p className="lead">Sistema de Gestão - PIB</p>
-          <p className="mb-0 opacity-75">"Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles." (Mateus 18:20)</p>
-        </div>
-        <div style={{
-            position: 'absolute', top: '-20%', right: '-10%', fontSize: '15rem', opacity: '0.1', transform: 'rotate(-20deg)'
-        }}>
-            <FaPray />
+    <div className="home-page">
+      {/* --- SEÇÃO DO BANNER --- */}
+      <div className="banner-container">
+        <img src={bannerImage} alt="Banner Igreja" className="banner-img" />
+        <div className="banner-overlay">
+          <Container className="text-center text-white position-relative" style={{ zIndex: 2 }}>
+            <h1 className="display-3 fw-bold mb-3">Bem-vindo à IgrejaSys</h1>
+            <p className="lead fs-4 mb-4">"Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles." (Mateus 18:20)</p>
+            <div className="d-flex justify-content-center gap-3">
+                <Button as={Link} to="/eventos" variant="primary" size="lg">Ver Agenda</Button>
+                <Button as={Link} to="/oracao" variant="outline-light" size="lg">Pedir Oração</Button>
+            </div>
+          </Container>
         </div>
       </div>
 
-      {/* Cards de Acesso Rápido */}
-      <Row className="mb-4 g-4">
-        <Col md={4}>
-          <Card className="h-100 shadow-sm border-0 hover-card">
-            <Card.Body className="d-flex flex-column align-items-center text-center p-4">
-              <div className="bg-light p-3 rounded-circle mb-3 text-primary">
-                <FaCalendarAlt size={30} />
-              </div>
-              <Card.Title>Eventos</Card.Title>
-              <Card.Text className="text-muted small">
-                Gerencie cultos, festas e reuniões da igreja.
-              </Card.Text>
-              <Button as={Link} to="/eventos" variant="outline-primary" className="mt-auto w-100">
-                Ver Agenda
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
+      <Container className="py-5" style={{ marginTop: "-60px", position: "relative", zIndex: 3 }}>
+        {/* Cards de Acesso Rápido - Agora sobrepondo levemente o banner */}
+        <Row className="mb-5 g-4">
+          <Col md={4}>
+            <Card className="h-100 shadow border-0 hover-card">
+              <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+                <div className="bg-primary bg-opacity-10 p-3 rounded-circle mb-3 text-primary">
+                  <FaCalendarAlt size={30} />
+                </div>
+                <Card.Title>Eventos</Card.Title>
+                <Card.Text className="text-muted small">
+                  Acompanhe nossa programação completa de cultos e festas.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
 
-        <Col md={4}>
-          <Card className="h-100 shadow-sm border-0 hover-card">
-            <Card.Body className="d-flex flex-column align-items-center text-center p-4">
-              <div className="bg-light p-3 rounded-circle mb-3 text-success">
-                <FaPray size={30} />
-              </div>
-              <Card.Title>Orações</Card.Title>
-              <Card.Text className="text-muted small">
-                Acompanhe os pedidos de oração dos membros.
-              </Card.Text>
-              <Button as={Link} to="/oracao" variant="outline-success" className="mt-auto w-100">
-                Pedidos de Oração
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
+          <Col md={4}>
+            <Card className="h-100 shadow border-0 hover-card">
+              <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+                <div className="bg-success bg-opacity-10 p-3 rounded-circle mb-3 text-success">
+                  <FaPray size={30} />
+                </div>
+                <Card.Title>Orações</Card.Title>
+                <Card.Text className="text-muted small">
+                  Um espaço para compartilhar pedidos e interceder pelos irmãos.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
 
-        <Col md={4}>
-          <Card className="h-100 shadow-sm border-0 hover-card">
-            <Card.Body className="d-flex flex-column align-items-center text-center p-4">
-              <div className="bg-light p-3 rounded-circle mb-3 text-warning">
-                <FaMoneyBillWave size={30} />
-              </div>
-              <Card.Title>Financeiro</Card.Title>
-              <Card.Text className="text-muted small">
-                Fluxo de caixa, Entradas e Saídas.
-              </Card.Text>
-              <Button as={Link} to="/fluxo-caixa" variant="outline-warning" className="mt-auto w-100">
-                Abrir Caixa
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+          <Col md={4}>
+            <Card className="h-100 shadow border-0 hover-card">
+              <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+                <div className="bg-warning bg-opacity-10 p-3 rounded-circle mb-3 text-warning">
+                  <FaUserPlus size={30} />
+                </div>
+                <Card.Title>Visitantes</Card.Title>
+                <Card.Text className="text-muted small">
+                  Novo por aqui? Faça seu cadastro e junte-se à nossa comunidade.
+                </Card.Text>
+                <Link to="/register" className="btn btn-sm btn-outline-warning mt-2 stretched-link">Cadastre-se</Link>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
 
-      <Row className="g-4">
-        {/* Coluna da Esquerda: Próximos Eventos */}
-        <Col lg={7}>
-          <Card className="shadow-sm h-100 border-0">
-            <Card.Header className="bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
-              <h5 className="mb-0 fw-bold text-secondary"><FaCalendarAlt className="me-2"/> Próximos Eventos</h5>
-              <Link to="/eventos" className="text-decoration-none small fw-bold">Ver todos</Link>
-            </Card.Header>
-            <Card.Body className="pt-0">
-              {nextEvents.length > 0 ? (
-                nextEvents.map((evt) => (
-                  <div key={evt.id} className="d-flex mb-3 bg-light rounded p-3 align-items-center position-relative overflow-hidden border">
+        {/* Seção Principal de Conteúdo */}
+        <Row className="g-4">
+          {/* Coluna da Esquerda: Próximos Eventos */}
+          <Col lg={7}>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h4 className="fw-bold text-secondary mb-0"><FaCalendarAlt className="me-2"/> Próximos Eventos</h4>
+                <Link to="/eventos" className="text-decoration-none small fw-bold">Ver todos</Link>
+            </div>
+            
+            {nextEvents.length > 0 ? (
+              nextEvents.map((evt) => (
+                <Card key={evt.id} className="mb-3 border-0 shadow-sm hover-card overflow-hidden">
+                  <Card.Body className="p-0 d-flex">
+                    {/* Data Box Lateral */}
+                    <div className="bg-light text-center p-3 d-flex flex-column justify-content-center border-end" style={{minWidth: '80px'}}>
+                      <span className="fw-bold h4 mb-0 text-primary">{new Date(evt.brand).getDate()}</span>
+                      <span className="small text-uppercase fw-bold text-muted">{new Date(evt.brand).toLocaleDateString('pt-BR', { month: 'short' }).replace('.','')}</span>
+                    </div>
                     
-                    {/* Data Box */}
-                    <div className="text-center me-3 bg-white rounded p-2 border shadow-sm" style={{minWidth: '60px', zIndex: 2}}>
-                      <span className="d-block fw-bold h5 mb-0 text-primary">
-                        {new Date(evt.brand).getDate()}
-                      </span>
-                      <span className="d-block x-small text-uppercase text-muted" style={{fontSize: '0.7rem'}}>
-                        {new Date(evt.brand).toLocaleDateString('pt-BR', { month: 'short' }).replace('.','')}
-                      </span>
-                    </div>
-
                     {/* Conteúdo */}
-                    <div className="flex-grow-1 pe-3" style={{zIndex: 2}}>
-                      <div className="d-flex align-items-center gap-2 mb-1">
-                        <Badge bg="info" className="fw-normal">{evt.category}</Badge>
-                        {evt.arquivo && (
-                            <span className="text-muted x-small d-flex align-items-center gap-1">
-                                {isVideo(evt.arquivo) ? <FaVideo size={10}/> : <FaImage size={10}/>} Mídia
-                            </span>
-                        )}
-                      </div>
-                      <h6 className="mb-1 fw-bold text-dark">{evt.titulo || "Evento sem título"}</h6>
-                      <p className="mb-0 text-muted small text-truncate" style={{maxWidth: '300px'}}>
-                        {evt.description}
-                      </p>
-                    </div>
-
-                    {/* Miniatura da Imagem (Se existir e não for vídeo) */}
-                    {evt.arquivo && !isVideo(evt.arquivo) && (
-                        <div className="d-none d-sm-block me-3 rounded overflow-hidden border" style={{width: '60px', height: '60px'}}>
-                            <img 
-                                src={`${MEDIA_URL}${evt.arquivo}`} 
-                                alt="preview" 
-                                style={{width: '100%', height: '100%', objectFit: 'cover'}}
-                            />
+                    <div className="p-3 flex-grow-1 d-flex align-items-center">
+                        <div className="flex-grow-1">
+                            <div className="d-flex align-items-center gap-2 mb-1">
+                                <Badge bg="info" className="fw-normal">{evt.category}</Badge>
+                                {evt.arquivo && (
+                                    <span className="text-muted x-small"><FaImage size={10}/> Mídia</span>
+                                )}
+                            </div>
+                            <h6 className="mb-1 fw-bold text-dark">{evt.titulo || "Evento"}</h6>
+                            <p className="mb-0 text-muted small text-truncate" style={{maxWidth: '350px'}}>{evt.description}</p>
                         </div>
-                    )}
-
-                    <Button as={Link} to={`/evento/${evt.id}`} size="sm" variant="outline-primary" className="rounded-circle" style={{zIndex: 2}}>
-                      <FaArrowRight />
-                    </Button>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-5 text-muted">
-                    <p>Não há eventos próximos agendados.</p>
-                    <Button as={Link} to="/eventos" size="sm" variant="primary">Agendar Evento</Button>
-                </div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-
-        {/* Coluna da Direita: Pedidos Recentes */}
-        <Col lg={5}>
-          <Card className="shadow-sm h-100 border-0">
-            <Card.Header className="bg-white py-3 border-bottom-0">
-              <h5 className="mb-0 fw-bold text-secondary"><FaPray className="me-2"/> Últimos Pedidos</h5>
-            </Card.Header>
-            <Card.Body className="pt-0">
-              {recentOracoes.length > 0 ? (
-                <div className="d-flex flex-column gap-3">
-                  {recentOracoes.map((ora) => (
-                    <div key={ora.id} className="p-3 bg-light rounded border-start border-4 border-success">
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <span className="fw-bold text-dark">{ora.nome}</span>
-                        <small className="text-muted" style={{fontSize: '0.75rem'}}>
-                          {new Date(ora.data).toLocaleDateString('pt-BR')}
-                        </small>
-                      </div>
-                      <p className="mb-0 text-muted small fst-italic">
-                        "{ora.pedido}"
-                      </p>
+                        <Link to={`/evento/${evt.id}`} className="btn btn-light rounded-circle btn-sm ms-2"><FaArrowRight /></Link>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted text-center py-4">Nenhum pedido recente.</p>
-              )}
-              <div className="mt-4">
-                <Button as={Link} to="/oracao" variant="outline-success" size="sm" className="w-100">
-                  <FaPlus className="me-1"/> Fazer novo pedido
-                </Button>
+                  </Card.Body>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-5 bg-white rounded shadow-sm">
+                  <p className="text-muted mb-0">Nenhum evento próximo agendado.</p>
               </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+            )}
+          </Col>
+
+          {/* Coluna da Direita: Pedidos Recentes */}
+          <Col lg={5}>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h4 className="fw-bold text-secondary mb-0"><FaPray className="me-2"/> Mural de Oração</h4>
+            </div>
+
+            <Card className="shadow-sm border-0 h-100">
+              <Card.Body className="p-0">
+                {recentOracoes.length > 0 ? (
+                  <div>
+                    {recentOracoes.map((ora, idx) => (
+                      <div key={ora.id} className={`p-3 ${idx !== recentOracoes.length - 1 ? 'border-bottom' : ''}`}>
+                        <div className="d-flex justify-content-between align-items-start mb-1">
+                          <span className="fw-bold text-success">{ora.nome}</span>
+                          <small className="text-muted" style={{fontSize: '0.7rem'}}>
+                            {new Date(ora.data).toLocaleDateString('pt-BR')}
+                          </small>
+                        </div>
+                        <p className="mb-0 text-muted small fst-italic">"{ora.pedido}"</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted text-center py-5 mb-0">Nenhum pedido recente.</p>
+                )}
+                <div className="p-3 bg-light border-top text-center">
+                  <Link to="/oracao" className="btn btn-outline-success btn-sm w-100 fw-bold">
+                    <FaPlus className="me-1"/> Deixar meu pedido
+                  </Link>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 };
 
 export default Home;
-

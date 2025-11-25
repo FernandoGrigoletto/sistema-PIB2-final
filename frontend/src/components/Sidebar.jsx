@@ -19,7 +19,6 @@ const Sidebar = () => {
     navigate("/login");
   };
 
-  // Função auxiliar para estilizar os links (agora com tema claro)
   const getNavLinkClass = ({ isActive }) => {
     return `nav-link d-flex align-items-center gap-2 py-3 px-3 rounded-0 transition-all ${
       isActive 
@@ -28,16 +27,25 @@ const Sidebar = () => {
     }`;
   };
 
+  // Verificando se é admin
+  const isAdmin = user && (user.role === 'admin' || user.role === 'operador');
+
   return (
     <div className="d-flex flex-column flex-shrink-0 bg-white sidebar-container border-end">
-      {/* Cabeçalho da Sidebar */}
-      <div className="d-flex align-items-center p-3 border-bottom">
-        <span className="fs-4 fw-bold text-primary text-decoration-none">
-          ⛪ Igreja<span className="text-dark">Sys</span>
+      
+      {/* --- AQUI: LOGO NO CABEÇALHO --- */}
+      <div className="d-flex align-items-center p-3 border-bottom gap-2">
+        {/* Imagem do Logo */}
+        <img 
+            src="/logo-igreja.jpg" 
+            alt="Logo" 
+            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '8px' }} 
+        />
+        <span className="fs-4 fw-bold text-primary text-decoration-none" style={{ lineHeight: '1' }}>
+          Igreja<span className="text-dark">Sys</span>
         </span>
       </div>
 
-      {/* Links de Navegação */}
       <Nav className="flex-column mb-auto mt-2">
         <Nav.Item>
           <NavLink to="/" className={getNavLinkClass}>
@@ -57,14 +65,15 @@ const Sidebar = () => {
           </NavLink>
         </Nav.Item>
 
-        <Nav.Item>
-          <NavLink to="/fluxo-caixa" className={getNavLinkClass}>
-            <FaMoneyBillWave /> Fluxo de Caixa
-          </NavLink>
-        </Nav.Item>
+        {isAdmin && (
+          <Nav.Item>
+            <NavLink to="/fluxo-caixa" className={getNavLinkClass}>
+              <FaMoneyBillWave /> Fluxo de Caixa
+            </NavLink>
+          </Nav.Item>
+        )}
       </Nav>
 
-      {/* Rodapé da Sidebar (Usuário e Logout) */}
       <div className="border-top p-3 bg-light mt-auto">
         {user ? (
           <div className="d-flex align-items-center justify-content-between">
@@ -74,7 +83,7 @@ const Sidebar = () => {
               </div>
               <div className="d-flex flex-column" style={{lineHeight: '1.2'}}>
                 <strong className="text-dark small text-truncate" style={{maxWidth: '120px'}}>
-                  {user.email.split('@')[0]}
+                  {user.nome || user.email.split('@')[0]}
                 </strong>
                 <span className="text-muted x-small" style={{fontSize: '0.75rem'}}>
                   {user.role}
@@ -102,4 +111,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
