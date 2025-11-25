@@ -4,18 +4,12 @@ import { Link } from "react-router-dom";
 import { 
   FaCalendarAlt, 
   FaPray, 
-  FaMoneyBillWave, 
   FaArrowRight, 
-  FaVideo, 
   FaImage, 
   FaPlus,
-  FaUserPlus 
 } from "react-icons/fa";
 
-// Importando a imagem do banner
 import bannerImage from '../assets/banner-home.jpg';
-
-// Services
 import oracaoService from "../services/oracaoService";
 import eventoService from "../services/eventoService";
 
@@ -24,23 +18,17 @@ const Home = () => {
   const [nextEvents, setNextEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // URL base para arquivos estáticos do backend
-  const MEDIA_URL = 'http://localhost:3000/uploads/';
-
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // Carrega dados em paralelo
         const [oracoesData, eventosData] = await Promise.all([
           oracaoService.getAll(),
           eventoService.getAll()
         ]);
 
-        // Pega as 3 últimas orações
         setRecentOracoes(oracoesData.slice(0, 3));
 
-        // Filtra eventos futuros e pega os 3 próximos
         const today = new Date().toISOString().split('T')[0];
         const upcoming = eventosData
           .filter(e => e.brand >= today)
@@ -50,176 +38,155 @@ const Home = () => {
         setNextEvents(upcoming);
 
       } catch (error) {
-        console.error("Erro ao carregar dados da home:", error);
+        console.error("Erro ao carregar dados:", error);
       } finally {
         setLoading(false);
       }
     };
-
     loadData();
   }, []);
 
-  // Função auxiliar para verificar extensão de arquivo
-  const isVideo = (filename) => {
-    if(!filename) return false;
-    const ext = filename.split('.').pop().toLowerCase();
-    return ['mp4', 'webm', 'ogg'].includes(ext);
-  };
-
   if (loading) {
     return (
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
-        <Spinner animation="border" variant="primary" />
-      </Container>
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner animation="grow" variant="primary" />
+      </div>
     );
   }
 
   return (
-    <div className="home-page">
-      {/* --- SEÇÃO DO BANNER (Sem botões agora) --- */}
-      <div className="banner-container">
-        <img src={bannerImage} alt="Banner Igreja" className="banner-img" />
-        <div className="banner-overlay">
-          <Container className="text-center text-white position-relative" style={{ zIndex: 2 }}>
-            <h1 className="display-3 fw-bold mb-3">Bem-vindo à IgrejaSys</h1>
-            <p className="lead fs-4 mb-0">"Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles." (Mateus 18:20)</p>
-          </Container>
-        </div>
-      </div>
+    <div className="home-page bg-light">
+      
+      {/* --- HERO SECTION (Banner) --- */}
+      <section className="hero-section">
+        <div className="hero-bg" style={{ backgroundImage: `url(${bannerImage})` }}></div>
+        <div className="hero-overlay"></div>
+        
+        <Container className="position-relative z-2 text-center text-white h-100 d-flex flex-column justify-content-center align-items-center">
+          <h1 className="display-3 fw-bold mb-3 hero-title">Primeira Igreja Batista em Osvaldo Cruz - SP</h1>
+          <p className="lead fs-4 mb-4 hero-subtitle">Igreja, o lugar aonde pessoas imperfeitas descobrem que ninguém é perfeito aqui na terra,<br/>mas também aprendem que o amor pode superar essas imperfeições.</p>
+        </Container>
+      </section>
 
-      <Container className="py-5" style={{ marginTop: "-60px", position: "relative", zIndex: 3 }}>
-        {/* Cards de Acesso Rápido - Botões movidos para cá */}
-        <Row className="mb-5 g-4">
-          <Col md={4}>
-            <Card className="h-100 shadow border-0 hover-card text-center">
-              <Card.Body className="d-flex flex-column align-items-center p-4">
-                <div className="bg-primary bg-opacity-10 p-3 rounded-circle mb-3 text-primary">
-                  <FaCalendarAlt size={30} />
+      {/* --- CARDS DE ACESSO RÁPIDO --- */}
+      <Container className="cards-container">
+        <Row className="g-4 justify-content-center">
+          
+          {/* Card 1: Eventos (Metade da tela) */}
+          <Col md={6}>
+            <Card className="h-100 border-0 shadow-lg feature-card text-center">
+              <Card.Body className="p-4 d-flex flex-column align-items-center">
+                <div className="icon-circle bg-primary bg-opacity-10 text-primary mb-3">
+                  <FaCalendarAlt size={28} />
                 </div>
-                <Card.Title>Eventos</Card.Title>
-                <Card.Text className="text-muted small mb-3">
-                  Acompanhe nossa programação completa de cultos e festas.
+                <Card.Title className="fw-bold">Agenda</Card.Title>
+                <Card.Text className="text-muted small mb-4">
+                  Confira os horários dos cultos e eventos especiais.
                 </Card.Text>
-                {/* BOTÃO VER AGENDA AQUI */}
-                <Button as={Link} to="/eventos" variant="outline-primary" className="mt-auto w-100">
-                  Ver Agenda
+                <Button as={Link} to="/eventos" variant="outline-primary" className="mt-auto w-100 rounded-pill fw-bold">
+                  Ver Programação
                 </Button>
               </Card.Body>
             </Card>
           </Col>
 
-          <Col md={4}>
-            <Card className="h-100 shadow border-0 hover-card text-center">
-              <Card.Body className="d-flex flex-column align-items-center p-4">
-                <div className="bg-success bg-opacity-10 p-3 rounded-circle mb-3 text-success">
-                  <FaPray size={30} />
+          {/* Card 2: Oração (Metade da tela) */}
+          <Col md={6}>
+            <Card className="h-100 border-0 shadow-lg feature-card text-center">
+              <Card.Body className="p-4 d-flex flex-column align-items-center">
+                <div className="icon-circle bg-success bg-opacity-10 text-success mb-3">
+                  <FaPray size={28} />
                 </div>
-                <Card.Title>Orações</Card.Title>
-                <Card.Text className="text-muted small mb-3">
-                  Um espaço para compartilhar pedidos e interceder pelos irmãos.
+                <Card.Title className="fw-bold">Pedidos de Oração</Card.Title>
+                <Card.Text className="text-muted small mb-4">
+                  Um espaço para intercedermos uns pelos outros.
                 </Card.Text>
-                {/* BOTÃO PEDIR ORAÇÃO AQUI */}
-                <Button as={Link} to="/oracao" variant="outline-success" className="mt-auto w-100">
-                  Pedir Oração
+                <Button as={Link} to="/oracao" variant="outline-success" className="mt-auto w-100 rounded-pill fw-bold">
+                  Deixar Pedido
                 </Button>
               </Card.Body>
             </Card>
           </Col>
 
-          <Col md={4}>
-            <Card className="h-100 shadow border-0 hover-card text-center">
-              <Card.Body className="d-flex flex-column align-items-center p-4">
-                <div className="bg-warning bg-opacity-10 p-3 rounded-circle mb-3 text-warning">
-                  <FaUserPlus size={30} />
-                </div>
-                <Card.Title>Visitantes</Card.Title>
-                <Card.Text className="text-muted small mb-3">
-                  Novo por aqui? Faça seu cadastro e junte-se à nossa comunidade.
-                </Card.Text>
-                <Button as={Link} to="/register" variant="outline-warning" className="mt-auto w-100">
-                  Cadastre-se
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
         </Row>
+      </Container>
 
-        {/* Seção Principal de Conteúdo */}
-        <Row className="g-4">
-          {/* Coluna da Esquerda: Próximos Eventos */}
+      {/* --- SEÇÃO DE CONTEÚDO --- */}
+      <Container className="py-5 mt-4">
+        <Row className="g-5">
+          
+          {/* Próximos Eventos */}
           <Col lg={7}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold text-secondary mb-0"><FaCalendarAlt className="me-2"/> Próximos Eventos</h4>
-                <Link to="/eventos" className="text-decoration-none small fw-bold">Ver todos</Link>
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">Próximos Eventos</h3>
+              <Link to="/eventos" className="text-primary fw-bold text-decoration-none small">Ver todos →</Link>
             </div>
-            
+
             {nextEvents.length > 0 ? (
-              nextEvents.map((evt) => (
-                <Card key={evt.id} className="mb-3 border-0 shadow-sm hover-card overflow-hidden">
-                  <Card.Body className="p-0 d-flex">
-                    {/* Data Box Lateral */}
-                    <div className="bg-light text-center p-3 d-flex flex-column justify-content-center border-end" style={{minWidth: '80px'}}>
-                      <span className="fw-bold h4 mb-0 text-primary">{new Date(evt.brand).getDate()}</span>
-                      <span className="small text-uppercase fw-bold text-muted">{new Date(evt.brand).toLocaleDateString('pt-BR', { month: 'short' }).replace('.','')}</span>
-                    </div>
-                    
-                    {/* Conteúdo */}
-                    <div className="p-3 flex-grow-1 d-flex align-items-center">
-                        <div className="flex-grow-1">
-                            <div className="d-flex align-items-center gap-2 mb-1">
-                                <Badge bg="info" className="fw-normal">{evt.category}</Badge>
-                                {evt.arquivo && (
-                                    <span className="text-muted x-small"><FaImage size={10}/> Mídia</span>
-                                )}
-                            </div>
-                            <h6 className="mb-1 fw-bold text-dark">{evt.titulo || "Evento"}</h6>
-                            <p className="mb-0 text-muted small text-truncate" style={{maxWidth: '350px'}}>{evt.description}</p>
+              <div className="d-flex flex-column gap-3">
+                {nextEvents.map((evt) => (
+                  <Card key={evt.id} className="border-0 shadow-sm event-row overflow-hidden">
+                    <Card.Body className="p-0 d-flex align-items-stretch">
+                      <div className="date-box bg-primary text-white d-flex flex-column justify-content-center align-items-center p-3" style={{minWidth: '85px'}}>
+                        <span className="h3 fw-bold mb-0">{new Date(evt.brand).getDate()}</span>
+                        <span className="small text-uppercase">{new Date(evt.brand).toLocaleDateString('pt-BR', { month: 'short' }).replace('.','')}</span>
+                      </div>
+                      <div className="p-3 flex-grow-1 d-flex flex-column justify-content-center">
+                        <div className="d-flex align-items-center gap-2 mb-1">
+                          <Badge bg="light" text="dark" className="border">{evt.category}</Badge>
+                          {evt.arquivo && <FaImage className="text-muted" size={12} />}
                         </div>
-                        <Link to={`/evento/${evt.id}`} className="btn btn-light rounded-circle btn-sm ms-2"><FaArrowRight /></Link>
-                    </div>
-                  </Card.Body>
-                </Card>
-              ))
+                        <h5 className="fw-bold text-dark mb-1">{evt.titulo || "Evento"}</h5>
+                        <p className="text-muted small mb-0 text-truncate" style={{maxWidth: '400px'}}>{evt.description}</p>
+                      </div>
+                      <div className="d-flex align-items-center pe-3">
+                         <Link to={`/evento/${evt.id}`} className="btn btn-light btn-sm rounded-circle shadow-sm"><FaArrowRight /></Link>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                ))}
+              </div>
             ) : (
-              <div className="text-center py-5 bg-white rounded shadow-sm">
-                  <p className="text-muted mb-0">Nenhum evento próximo agendado.</p>
+              <div className="text-center p-5 bg-white rounded border border-dashed">
+                <p className="text-muted mb-0">Nenhum evento agendado.</p>
               </div>
             )}
           </Col>
 
-          {/* Coluna da Direita: Pedidos Recentes */}
+          {/* Mural de Oração */}
           <Col lg={5}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold text-secondary mb-0"><FaPray className="me-2"/> Mural de Oração</h4>
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <h3 className="fw-bold text-dark m-0 border-start border-4 border-success ps-3">Mural de Oração</h3>
             </div>
 
-            <Card className="shadow-sm border-0 h-100">
+            <Card className="border-0 shadow-sm">
               <Card.Body className="p-0">
                 {recentOracoes.length > 0 ? (
-                  <div>
-                    {recentOracoes.map((ora, idx) => (
-                      <div key={ora.id} className={`p-3 ${idx !== recentOracoes.length - 1 ? 'border-bottom' : ''}`}>
-                        <div className="d-flex justify-content-between align-items-start mb-1">
-                          <span className="fw-bold text-success">{ora.nome}</span>
-                          <small className="text-muted" style={{fontSize: '0.7rem'}}>
-                            {new Date(ora.data).toLocaleDateString('pt-BR')}
-                          </small>
+                  <div className="list-group list-group-flush">
+                    {recentOracoes.map((ora) => (
+                      <div key={ora.id} className="list-group-item p-3 border-0 border-bottom">
+                        <div className="d-flex justify-content-between mb-1">
+                          <strong className="text-success">{ora.nome}</strong>
+                          <span className="text-muted x-small">{new Date(ora.data).toLocaleDateString('pt-BR')}</span>
                         </div>
-                        <p className="mb-0 text-muted small fst-italic">"{ora.pedido}"</p>
+                        <p className="mb-0 text-secondary small fst-italic">"{ora.pedido}"</p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted text-center py-5 mb-0">Nenhum pedido recente.</p>
+                  <div className="text-center p-4">
+                    <p className="text-muted mb-0">Nenhum pedido recente.</p>
+                  </div>
                 )}
-                <div className="p-3 bg-light border-top text-center">
-                  <Link to="/oracao" className="btn btn-outline-success btn-sm w-100 fw-bold">
+                <div className="p-3 bg-light">
+                  <Link to="/oracao" className="btn btn-success w-100 btn-sm fw-bold shadow-sm">
                     <FaPlus className="me-1"/> Deixar meu pedido
                   </Link>
                 </div>
               </Card.Body>
             </Card>
           </Col>
+
         </Row>
       </Container>
     </div>

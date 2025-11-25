@@ -30,11 +30,10 @@ function App() {
               
               {/* Eventos */}
               <Route path="/eventos" element={<Eventos />} />
-              {/* CORREÇÃO AQUI: Mudado de /eventos/:id para /evento/:id (singular) */}
               <Route path="/evento/:id" element={<EventoDetalhe />} />
               
-              {/* Rotas Protegidas */}
-              <Route path="/oracoes" element={
+              {/* CORREÇÃO: Rota alterada para /oracao (singular) para bater com o link da Home/Sidebar */}
+              <Route path="/oracao" element={
                 <ProtectedRoute>
                   <Oracao />
                 </ProtectedRoute>
