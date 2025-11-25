@@ -76,63 +76,69 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {/* --- SEÇÃO DO BANNER --- */}
+      {/* --- SEÇÃO DO BANNER (Sem botões agora) --- */}
       <div className="banner-container">
         <img src={bannerImage} alt="Banner Igreja" className="banner-img" />
         <div className="banner-overlay">
           <Container className="text-center text-white position-relative" style={{ zIndex: 2 }}>
             <h1 className="display-3 fw-bold mb-3">Bem-vindo à IgrejaSys</h1>
-            <p className="lead fs-4 mb-4">"Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles." (Mateus 18:20)</p>
-            <div className="d-flex justify-content-center gap-3">
-                <Button as={Link} to="/eventos" variant="primary" size="lg">Ver Agenda</Button>
-                <Button as={Link} to="/oracao" variant="outline-light" size="lg">Pedir Oração</Button>
-            </div>
+            <p className="lead fs-4 mb-0">"Porque onde estiverem dois ou três reunidos em meu nome, aí estou eu no meio deles." (Mateus 18:20)</p>
           </Container>
         </div>
       </div>
 
       <Container className="py-5" style={{ marginTop: "-60px", position: "relative", zIndex: 3 }}>
-        {/* Cards de Acesso Rápido - Agora sobrepondo levemente o banner */}
+        {/* Cards de Acesso Rápido - Botões movidos para cá */}
         <Row className="mb-5 g-4">
           <Col md={4}>
-            <Card className="h-100 shadow border-0 hover-card">
-              <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+            <Card className="h-100 shadow border-0 hover-card text-center">
+              <Card.Body className="d-flex flex-column align-items-center p-4">
                 <div className="bg-primary bg-opacity-10 p-3 rounded-circle mb-3 text-primary">
                   <FaCalendarAlt size={30} />
                 </div>
                 <Card.Title>Eventos</Card.Title>
-                <Card.Text className="text-muted small">
+                <Card.Text className="text-muted small mb-3">
                   Acompanhe nossa programação completa de cultos e festas.
                 </Card.Text>
+                {/* BOTÃO VER AGENDA AQUI */}
+                <Button as={Link} to="/eventos" variant="outline-primary" className="mt-auto w-100">
+                  Ver Agenda
+                </Button>
               </Card.Body>
             </Card>
           </Col>
 
           <Col md={4}>
-            <Card className="h-100 shadow border-0 hover-card">
-              <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+            <Card className="h-100 shadow border-0 hover-card text-center">
+              <Card.Body className="d-flex flex-column align-items-center p-4">
                 <div className="bg-success bg-opacity-10 p-3 rounded-circle mb-3 text-success">
                   <FaPray size={30} />
                 </div>
                 <Card.Title>Orações</Card.Title>
-                <Card.Text className="text-muted small">
+                <Card.Text className="text-muted small mb-3">
                   Um espaço para compartilhar pedidos e interceder pelos irmãos.
                 </Card.Text>
+                {/* BOTÃO PEDIR ORAÇÃO AQUI */}
+                <Button as={Link} to="/oracao" variant="outline-success" className="mt-auto w-100">
+                  Pedir Oração
+                </Button>
               </Card.Body>
             </Card>
           </Col>
 
           <Col md={4}>
-            <Card className="h-100 shadow border-0 hover-card">
-              <Card.Body className="d-flex flex-column align-items-center text-center p-4">
+            <Card className="h-100 shadow border-0 hover-card text-center">
+              <Card.Body className="d-flex flex-column align-items-center p-4">
                 <div className="bg-warning bg-opacity-10 p-3 rounded-circle mb-3 text-warning">
                   <FaUserPlus size={30} />
                 </div>
                 <Card.Title>Visitantes</Card.Title>
-                <Card.Text className="text-muted small">
+                <Card.Text className="text-muted small mb-3">
                   Novo por aqui? Faça seu cadastro e junte-se à nossa comunidade.
                 </Card.Text>
-                <Link to="/register" className="btn btn-sm btn-outline-warning mt-2 stretched-link">Cadastre-se</Link>
+                <Button as={Link} to="/register" variant="outline-warning" className="mt-auto w-100">
+                  Cadastre-se
+                </Button>
               </Card.Body>
             </Card>
           </Col>

@@ -5,4 +5,4 @@ class Categoria {
     }
 }
 
-export default Categoria; // Correção: usar export default ao invés de module.exports
+export default Categoria;

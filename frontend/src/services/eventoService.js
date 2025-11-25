@@ -1,4 +1,4 @@
-const API_BASE_URL ='http://localhost:3000/api/eventos'
+const API_BASE_URL ='http://localhost:3000/api/eventos';
 
 const handleResponse = async (response)=>{
     if (!response.ok){
@@ -19,26 +19,23 @@ const getAll = async (filtro = {}) => {
         }
         const url = params.toString() ? `${API_BASE_URL}?${params.toString()}` : API_BASE_URL;
 
-        // GET é público, não precisa de credentials, mas não faz mal ter.
+        // Leitura é pública, não precisa de credentials obrigatório, mas não faz mal
         const response = await fetch(url);
         const result = await handleResponse(response);
 
-        return result.data.map(evento => ({
-            ...evento
-        }));
-
+        return result.data.map(evento => ({ ...evento }));
     } catch (error) {
         console.error('Erro ao buscar evento:', error);
         throw error;
     }
 };
 
-const getById=async(id)=>{
+const getById = async(id) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`)
+        const response = await fetch(`${API_BASE_URL}/${id}`);
         const result = await handleResponse(response);
-        return {...result.data}
-    }catch (error){
+        return {...result.data};
+    } catch (error){
         console.error(`Erro ao buscar evento ${id}: `, error);
         throw error;
     }
@@ -58,11 +55,10 @@ const add = async (evento) => {
         const response = await fetch(API_BASE_URL, {
             method: 'POST',
             body: formData,
-            credentials: 'include' // ADICIONADO: Importante para Admin
-        })
+            credentials: 'include' // Necessário para Admin
+        });
         const result = await handleResponse(response);
-        return { ...result.data }
-
+        return { ...result.data };
     } catch (error) {
         console.error('Erro ao adicionar evento:', error);
         throw error;
@@ -84,40 +80,29 @@ const update = async (evento) => {
         const response = await fetch(`${API_BASE_URL}/${evento.id}`, {
             method: 'PUT',
             body: formData,
-            credentials: 'include' // ADICIONADO: Importante para Admin
+            credentials: 'include' // Necessário para Admin
         });
-
         const result = await handleResponse(response);
         return { ...result.data };
-
     } catch (error) {
         console.error(`Erro ao atualizar evento ${evento.id}:`, error);
         throw error;
     }
 }
 
-const remove = async(id)=>{
+const remove = async(id) => {
     try {
         const response = await fetch(`${API_BASE_URL}/${id}`,{
             method:'DELETE',
-            credentials: 'include' // ADICIONADO: Importante para Admin
+            credentials: 'include' // Necessário para Admin
         });
         const result = await handleResponse(response);
         return result.message;
-
     } catch (error){
         console.error(`Erro ao remover evento ${id}`,error)
         throw error;
     }
 }
 
-const eventoService ={
-    getAll,
-    getById,
-    update,
-    add,
-    remove
-}
-
-export default eventoService;
+export default { getAll, getById, update, add, remove };
 
