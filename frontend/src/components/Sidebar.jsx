@@ -78,11 +78,14 @@ const Sidebar = () => {
         )}
 
         {/* Link de Ajuda (Visível para todos) */}
-        <Nav.Item>
+        {isAdmin && (
+          <Nav.Item>
           <NavLink to="/ajuda" className={getNavLinkClass}>
             <FaQuestionCircle /> Ajuda
           </NavLink>
         </Nav.Item>
+        )}
+        
 
         {/* Link Novo Usuário (Apenas Super Admin) */}
         {isSuperAdmin && (

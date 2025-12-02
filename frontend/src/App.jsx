@@ -38,7 +38,11 @@ function App() {
                 <Route path="/oracao" element={<Oracao />} />
 
                 {/* Nova Rota de Ajuda (Pública) */}
-                <Route path="/ajuda" element={<Help />} />
+                <Route path="/ajuda" element={
+                  <ProtectedRoute roles={['admin', 'operador']}>
+                  <Help />
+                  </ProtectedRoute>
+                  } />
 
                 {/* Rotas de Admin */}
                 <Route path="/fluxo-caixa" element={

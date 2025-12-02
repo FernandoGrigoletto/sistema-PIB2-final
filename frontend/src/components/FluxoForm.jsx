@@ -79,7 +79,7 @@ const FluxoForm = ({ onSave, fluxo }) => {
                 type="text"
                 value={descricao}
                 onChange={(e) => setDescricao(e.target.value)}
-                placeholder="Ex: Venda de Livro"
+                placeholder="Ex: Doação, Despesas diversas..."
                 isInvalid={!!errors.descricao}
               />
               <Form.Control.Feedback type="invalid">{errors.descricao}</Form.Control.Feedback>
