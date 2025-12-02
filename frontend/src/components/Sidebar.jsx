@@ -7,7 +7,8 @@ import {
   FaMoneyBillWave, 
   FaSignOutAlt, 
   FaUserCircle,
-  FaUserPlus // 1. Importação do novo ícone
+  FaUserPlus,
+  FaQuestionCircle // <--- Importação do novo ícone
 } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 
@@ -30,7 +31,7 @@ const Sidebar = () => {
 
   // Verificando roles (papéis de usuário)
   const isAdmin = user && (user.role === 'admin' || user.role === 'operador');
-  const isSuperAdmin = user && user.role === 'admin'; // 2. Apenas o admin principal pode criar usuários
+  const isSuperAdmin = user && user.role === 'admin';
 
   return (
     <div className="d-flex flex-column flex-shrink-0 bg-white sidebar-container border-end">
@@ -76,7 +77,14 @@ const Sidebar = () => {
           </Nav.Item>
         )}
 
-        {/* 3. Link Novo Usuário (Apenas Super Admin) */}
+        {/* Link de Ajuda (Visível para todos) */}
+        <Nav.Item>
+          <NavLink to="/ajuda" className={getNavLinkClass}>
+            <FaQuestionCircle /> Ajuda
+          </NavLink>
+        </Nav.Item>
+
+        {/* Link Novo Usuário (Apenas Super Admin) */}
         {isSuperAdmin && (
           <Nav.Item>
             <NavLink to="/register" className={getNavLinkClass}>

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthProvider from './components/AuthProvider';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
-import Footer from './components/Footer'; // <--- 1. Importar o Footer
+import Footer from './components/Footer';
 
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -12,10 +12,9 @@ import Eventos from './pages/Eventos';
 import EventoDetalhe from './pages/EventoDetalhe';
 import Oracao from './pages/Oracao';
 import FluxoCaixa from './pages/FluxoCaixa';
+import Help from './pages/Help'; // <--- Importação da nova página
 
 import './App.css';
-
-// ... importações (manter iguais)
 
 function App() {
   return (
@@ -29,7 +28,6 @@ function App() {
                 {/* Rotas Públicas */}
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
-                {/* REMOVIDO DAQUI: Route path="/register" ... */}
                 <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
                 
                 {/* Eventos */}
@@ -39,6 +37,9 @@ function App() {
                 {/* Rota de Oração */}
                 <Route path="/oracao" element={<Oracao />} />
 
+                {/* Nova Rota de Ajuda (Pública) */}
+                <Route path="/ajuda" element={<Help />} />
+
                 {/* Rotas de Admin */}
                 <Route path="/fluxo-caixa" element={
                   <ProtectedRoute roles={['admin', 'operador']}>
@@ -46,7 +47,7 @@ function App() {
                   </ProtectedRoute>
                 } />
 
-                {/* ALTERAÇÃO AQUI: Adicionado Cadastro de Usuários apenas para Admin */}
+                {/* Rota de Cadastro apenas para Admin */}
                 <Route path="/register" element={
                   <ProtectedRoute roles={['admin']}>
                     <RegisterPage />
