@@ -1,13 +1,18 @@
 import { Button, Col, Container, Row, Modal, Form, InputGroup } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { FaPlus, FaSearch } from "react-icons/fa";
+import { useAuth } from "../hooks/useAuth"; // <--- 1. Importar useAuth
 
 import EventoForm from "../components/EventoForm";
 import eventoService from "../services/eventoService";
 import EventoList from "../components/EventoList";
-// import EventoFiltro from "../components/EventoFiltro"; // Comentado conforme seu código original
 
 const Eventos = () => {
+  const { user } = useAuth(); // <--- 2. Obter usuário logado
+  
+  // 3. Verificar permissão
+  const isAdmin = user && (user.role === 'admin' || user.role === 'operador');
+
   const [showForm, setShowForm] = useState(false);
   const [eventos, setEventos] = useState([]);
   const [filteredEventos, setFilteredEventos] = useState([]);
@@ -31,10 +36,9 @@ const Eventos = () => {
     loadEvento();
   }, []);
 
-  // Filtro de busca simples pelo texto (Título, Descrição ou Categoria)
   useEffect(() => {
     const results = eventos.filter(evento => 
-      (evento.titulo && evento.titulo.toLowerCase().includes(searchTerm.toLowerCase())) || // Busca por Título adicionada
+      (evento.titulo && evento.titulo.toLowerCase().includes(searchTerm.toLowerCase())) || 
       evento.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       evento.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -43,7 +47,6 @@ const Eventos = () => {
 
   const handleSaveEvento = async (evento) => {
     try {
-      // O objeto 'evento' aqui já vem com 'titulo' e 'arquivo' do EventoForm
       if (evento.id > 0) {
         await eventoService.update(evento);
       } else {
@@ -86,13 +89,17 @@ const Eventos = () => {
           <h2 className="mb-0 fw-bold text-secondary">Agenda de Eventos</h2>
           <span className="text-muted">Gerencie as atividades da igreja</span>
         </div>
-        <Button 
-          variant="success" 
-          onClick={() => { setEventoToEdit(null); setShowForm(!showForm); }}
-          className="d-flex align-items-center gap-2"
-        >
-          {showForm ? "Cancelar" : <><FaPlus /> Novo Evento</>}
-        </Button>
+        
+        {/* 4. Só mostra o botão de Novo Evento se for Admin */}
+        {isAdmin && (
+          <Button 
+            variant="success" 
+            onClick={() => { setEventoToEdit(null); setShowForm(!showForm); }}
+            className="d-flex align-items-center gap-2"
+          >
+            {showForm ? "Cancelar" : <><FaPlus /> Novo Evento</>}
+          </Button>
+        )}
       </div>
 
       {/* Formulário */}
@@ -123,17 +130,15 @@ const Eventos = () => {
             />
            </InputGroup>
         </Col>
-        <Col md={4} className="text-end">
-           {/* Espaço reservado para filtros avançados futuros */}
-        </Col>
       </Row>
 
       {/* Lista de Eventos (Grid) */}
       <Row>
         <EventoList 
           eventos={filteredEventos}
-          onDelete={handleConfirmDelete}
-          onEdit={handleEditEvento}
+          // 5. Só passa a função se for admin, caso contrário passa null
+          onDelete={isAdmin ? handleConfirmDelete : null}
+          onEdit={isAdmin ? handleEditEvento : null}
         />        
       </Row>
 

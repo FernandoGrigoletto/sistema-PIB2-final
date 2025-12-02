@@ -1,26 +1,34 @@
-import { useState } from "react";
-import { Form, Button, Row, Col, InputGroup, Modal, Alert } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Form, Button, Row, Col, InputGroup, Modal } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
 
-const FluxoForm = ({ onSave, fluxo }) => {
+const FluxoForm = ({ onSave, fluxo, categoriasDisponiveis }) => { // Recebe categoriasDisponiveis
   const [descricao, setDescricao] = useState(fluxo?.descricao || "");
   const [valor, setValor] = useState(fluxo?.valor || "");
   const [tipo, setTipo] = useState(fluxo?.tipo || "entrada");
-  const [data, setData] = useState(fluxo?.data || "");
+  const [data, setData] = useState(fluxo?.data ? new Date(fluxo.data).toISOString().split('T')[0] : "");
   
-  const [categorias, setCategorias] = useState([
-    "Dízimo",
-    "Doação",
-    "Venda",
-    "Despesa",
-  ]);
+  // Inicializa com as categorias vindas do pai ou um fallback básico
+  const [categorias, setCategorias] = useState(
+    categoriasDisponiveis && categoriasDisponiveis.length > 0
+      ? categoriasDisponiveis
+      : ["Dízimo", "Doação", "Venda", "Despesa", "Outros"]
+  );
+
   const [categoria, setCategoria] = useState(fluxo?.categoria || categorias[0]);
   const [showNewCatModal, setShowNewCatModal] = useState(false);
   const [newCategoria, setNewCategoria] = useState("");
   
   const [errors, setErrors] = useState({});
 
-  // Validação do formulário
+  // Sincroniza se a lista do pai mudar (opcional, mas bom para garantir consistência)
+  useEffect(() => {
+    if (categoriasDisponiveis && categoriasDisponiveis.length > 0) {
+        // Mantém categorias locais adicionadas recentemente se houver
+        setCategorias(prev => [...new Set([...prev, ...categoriasDisponiveis])]);
+    }
+  }, [categoriasDisponiveis]);
+
   const validate = () => {
     const newErrors = {};
     if (!descricao) newErrors.descricao = "Descrição é obrigatória";
@@ -43,15 +51,14 @@ const FluxoForm = ({ onSave, fluxo }) => {
       valor: parseFloat(valor),
       tipo,
       data,
-      categoria,
+      categoria, // Envia o nome da categoria (string)
     });
 
-    // Reset campos
+    // Reset campos (opcional, pois o form costuma fechar)
     setDescricao("");
     setValor("");
     setTipo("entrada");
     setData("");
-    setCategoria(categorias[0]);
     setErrors({});
   };
 
@@ -62,8 +69,9 @@ const FluxoForm = ({ onSave, fluxo }) => {
       return;
     }
 
-    setCategorias([...categorias, newCategoria.trim()]);
-    setCategoria(newCategoria.trim());
+    const nova = newCategoria.trim();
+    setCategorias([...categorias, nova]);
+    setCategoria(nova); // Já seleciona a nova categoria
     setNewCategoria("");
     setShowNewCatModal(false);
   };
@@ -137,6 +145,7 @@ const FluxoForm = ({ onSave, fluxo }) => {
                 <Button
                   variant="outline-primary"
                   onClick={() => setShowNewCatModal(true)}
+                  title="Criar nova categoria"
                 >
                   <FaPlus />
                 </Button>
@@ -159,9 +168,11 @@ const FluxoForm = ({ onSave, fluxo }) => {
           </Col>
         </Row>
 
-        <Button type="submit" variant="success" className="mt-2">
-          Salvar
-        </Button>
+        <div className="d-flex justify-content-end">
+            <Button type="submit" variant="success" className="px-4">
+            Salvar Lançamento
+            </Button>
+        </div>
       </Form>
 
       {/* Modal para nova categoria */}
@@ -177,6 +188,7 @@ const FluxoForm = ({ onSave, fluxo }) => {
               value={newCategoria}
               onChange={(e) => setNewCategoria(e.target.value)}
               placeholder="Digite a categoria..."
+              autoFocus
             />
           </Form.Group>
         </Modal.Body>

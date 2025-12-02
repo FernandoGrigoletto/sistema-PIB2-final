@@ -235,3 +235,38 @@
 }
 
 /* ... restante do CSS ... */
+
+/* Sidebar Improvements */
+.sidebar-container {
+  height: 100vh; /* Garante altura total */
+  position: sticky;
+  top: 0;
+}
+
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efeito de hover suave nos itens do menu */
+.hover-bg-light:hover {
+  background-color: #f8f9fa;
+  color: #0d6efd !important; /* Cor primária do Bootstrap no hover */
+  transform: translateX(4px); /* Leve movimento para a direita */
+}
+
+/* Efeito de escala no botão de sair */
+.hover-scale:hover {
+  transform: scale(1.1);
+}
+
+/* Garante que o conteúdo principal ocupe o espaço restante */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  height: 100vh;
+}
