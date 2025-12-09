@@ -1,5 +1,5 @@
 import { Container, Row, Col } from "react-bootstrap";
-import { FaMapMarkerAlt, FaClock, FaChurch } from "react-icons/fa";
+import { FaMapMarkerAlt, FaClock, FaChurch, FaFacebook, FaInstagram } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -48,6 +48,28 @@ const Footer = () => {
           </Col>
         </Row>
         
+        {/* Redes Sociais */}
+        <div className="d-flex justify-content-center gap-3 mt-4">
+          <a 
+            href="https://www.facebook.com" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-secondary hover-primary"
+            title="Facebook"
+          >
+            <FaFacebook size={24} />
+          </a>
+          <a 
+            href="https://www.instagram.com/pibocruz/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-secondary hover-primary"
+            title="Instagram"
+          >
+            <FaInstagram size={24} />
+          </a>
+        </div>
+
         <div className="text-center mt-4 pt-3 border-top x-small text-muted">
             &copy; {new Date().getFullYear()} Primeira Igreja Batista em Osvaldo Cruz. Todos os direitos reservados.
         </div>
