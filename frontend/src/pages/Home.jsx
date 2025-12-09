@@ -7,7 +7,8 @@ import {
   FaArrowRight, 
   FaImage, 
   FaPlus,
-  FaFacebook
+  FaFacebook,
+  FaInstagram // [Novo] Importando ícone do Instagram
 } from "react-icons/fa";
 
 import bannerImage from '../assets/banner-home.jpg';
@@ -181,37 +182,35 @@ const Home = () => {
         </Row>
       </Container>
 
-      {/* --- SEÇÃO FACEBOOK AJUSTADA (QUADRO) --- */}
+      {/* --- SEÇÃO REDES SOCIAIS (FACEBOOK E INSTAGRAM) --- */}
       <Container className="py-5 mb-5">
-        <Row className="justify-content-center">
-          {/* Limitamos a largura para criar o efeito de destaque centralizado */}
-          <Col md={10} lg={8} xl={6}>
-            
-            <div className="d-flex align-items-center justify-content-between mb-4">
-              <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">
-                Acompanhe no Facebook
-              </h3>
+        <h3 className="fw-bold text-dark mb-4 border-start border-4 border-primary ps-3">
+          Siga Nossas Redes Sociais
+        </h3>
+        <Row className="justify-content-center g-4">
+          
+          {/* Coluna Facebook */}
+          <Col lg={6}>
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <h5 className="fw-bold text-primary m-0"><FaFacebook className="me-2"/>Facebook</h5>
               <a 
                 href="https://www.facebook.com/pibosvaldocruz/?locale=pt_BR" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="btn btn-outline-primary btn-sm fw-bold"
+                className="small text-decoration-none fw-bold"
               >
-                <FaFacebook className="me-2"/> Visitar Página
+                Visitar Página →
               </a>
             </div>
-            
-            {/* O "Quadro" Externo */}
-            <Card className="border-0 shadow-lg bg-light" style={{ borderRadius: '1rem' }}>
-              <Card.Body className="p-3 text-center">
-                
-                {/* A "Moldura" Interna Branca */}
-                <div className="bg-white p-2 rounded shadow-sm d-inline-block" style={{ maxWidth: '100%' }}>
-                  <div style={{ overflow: 'hidden', maxWidth: '500px', margin: '0 auto' }}>
+            {/* Altura mínima ajustada para alinhar com o Instagram */}
+            <Card className="border-0 shadow-lg bg-light h-100" style={{ borderRadius: '1rem', minHeight: '500px' }}>
+              <Card.Body className="p-3 text-center d-flex flex-column justify-content-center">
+                <div className="bg-white p-2 rounded shadow-sm d-inline-block mx-auto" style={{ width: '100%', maxWidth: '500px' }}>
+                  <div style={{ overflow: 'hidden' }}>
                     <iframe 
                       src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fpibosvaldocruz&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
                       width="100%"
-                      height="600" 
+                      height="500" 
                       style={{border: 'none', overflow: 'hidden', display: 'block'}} 
                       scrolling="no" 
                       frameBorder="0" 
@@ -221,15 +220,66 @@ const Home = () => {
                     ></iframe>
                   </div>
                 </div>
+              </Card.Body>
+            </Card>
+          </Col>
 
-                <div className="mt-3 text-muted small fst-italic">
-                  <FaArrowRight className="me-1 text-primary" size={10} />
-                  Role dentro do quadro para ver postagens antigas.
+          {/* Coluna Instagram */}
+          <Col lg={6}>
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <h5 className="fw-bold text-danger m-0"><FaInstagram className="me-2"/>Instagram</h5>
+              <a 
+                href="https://www.instagram.com/pibocruz/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="small text-decoration-none fw-bold text-danger"
+              >
+                Visitar Perfil →
+              </a>
+            </div>
+            
+            {/* Card estilizado com gradiente do Instagram */}
+            <Card className="border-0 shadow-lg h-100 text-white" style={{ borderRadius: '1rem', background: 'linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d)' }}>
+              <Card.Body className="p-5 d-flex flex-column align-items-center justify-content-center text-center">
+                
+                {/* Foto do Perfil (Logo) */}
+                <div className="bg-white p-1 rounded-circle mb-4 shadow-lg" style={{ width: '120px', height: '120px' }}>
+                  <img 
+                    src="/logo-igreja.jpg" 
+                    alt="Logo PIB" 
+                    className="rounded-circle w-100 h-100" 
+                    style={{ objectFit: 'cover' }}
+                    onError={(e) => {e.target.style.display='none'}} 
+                  />
+                   {/* Fallback caso a imagem não carregue */}
+                   <div className="w-100 h-100 rounded-circle d-flex align-items-center justify-content-center text-danger bg-white" style={{display: 'none'}}> 
+                      <FaInstagram size={50} />
+                   </div>
+                </div>
+                
+                <h3 className="fw-bold mb-1">@pibocruz</h3>
+                <p className="mb-4 opacity-75">Siga nosso perfil oficial para acompanhar fotos, stories e novidades da igreja.</p>
+                
+                <a 
+                  href="https://www.instagram.com/pibocruz/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-light text-danger fw-bold rounded-pill px-5 py-2 shadow-sm scale-hover"
+                >
+                  <FaInstagram className="me-2"/> Seguir no Instagram
+                </a>
+
+                {/* Simulação visual do feed (quadrados) para dar contexto */}
+                <div className="mt-5 d-flex gap-2 justify-content-center opacity-50">
+                   <div className="bg-white rounded" style={{width: '60px', height: '60px'}}></div>
+                   <div className="bg-white rounded" style={{width: '60px', height: '60px'}}></div>
+                   <div className="bg-white rounded" style={{width: '60px', height: '60px'}}></div>
                 </div>
 
               </Card.Body>
             </Card>
           </Col>
+
         </Row>
       </Container>
 
