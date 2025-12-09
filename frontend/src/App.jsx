@@ -3,6 +3,7 @@ import AuthProvider from './components/AuthProvider';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Footer from './components/Footer';
+import Membros from './pages/Membros';
 
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -29,6 +30,13 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
+
+                {/* Gestão de Membros (Admin) */}
+                <Route path="/membros" element={
+                <ProtectedRoute roles={['admin']}>
+                <Membros />
+                </ProtectedRoute>
+                } />
                 
                 {/* Eventos */}
                 <Route path="/eventos" element={<Eventos />} />

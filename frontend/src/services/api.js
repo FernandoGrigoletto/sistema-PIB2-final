@@ -52,13 +52,18 @@ class ApiService {
     });
   }
 
-  async register(nome, email, password) {
+
+  // Atualize o método register para aceitar 'role'
+  async register(nome, email, password, role) {
     return this.request("/auth/register", {
       method: "POST",
-      body: JSON.stringify({ nome, email, password }),
-      credentials: "include", // Envia cookie do admin (se necessário)
+      // Envie o role no corpo da requisição
+      body: JSON.stringify({ nome, email, password, role }),
+      credentials: "include",
     });
   }
+
+// ...
 
   async logout() {
     return this.request("/auth/logout", {
@@ -69,6 +74,13 @@ class ApiService {
 
   async checkAuth() {
     return this.request("/auth/me", { credentials: "include" });
+  }
+
+  async getAllUsers() {
+    return this.request("/auth/users", {
+      method: "GET",
+      credentials: "include",
+    });
   }
 }
 

@@ -1,14 +1,19 @@
 import { useState } from "react";
-// Removemos o Link, pois o admin não precisa ir para login
 import { Card, Form, Button, Container, Col, Alert } from "react-bootstrap";
 import apiService from "../services/api";
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({ nome: "", email: "", password: "", confirmPassword: "" });
+  // 1. Adicionamos 'role' ao estado inicial com valor padrão 'membro'
+  const [formData, setFormData] = useState({ 
+    nome: "", 
+    email: "", 
+    password: "", 
+    confirmPassword: "",
+    role: "membro" 
+  });
+  
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  // navigate não é estritamente necessário se formos apenas limpar o form, 
-  // mas você pode usar para voltar à Home se quiser.
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,13 +29,13 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      await apiService.register(formData.nome, formData.email, formData.password);
+      // 2. Passamos o 'role' para a função de registro
+      await apiService.register(formData.nome, formData.email, formData.password, formData.role);
       
-      // ALTERAÇÃO: Mensagem adequada para o admin
       alert("Usuário cadastrado com sucesso!");
       
-      // ALTERAÇÃO: Limpar o formulário para permitir novo cadastro
-      setFormData({ nome: "", email: "", password: "", confirmPassword: "" });
+      // Limpa o formulário
+      setFormData({ nome: "", email: "", password: "", confirmPassword: "", role: "membro" });
       
     } catch (err) {
       setError(err.message || "Erro ao cadastrar");
@@ -41,10 +46,9 @@ const RegisterPage = () => {
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-      <Col md={6}> {/* Aumentei um pouco a largura para md=6 */}
+      <Col md={6}>
         <Card className="shadow border-0">
           <Card.Body className="p-5">
-            {/* ALTERAÇÃO: Título mais adequado */}
             <h2 className="text-center mb-4 fw-bold text-primary">Cadastrar Novo Usuário</h2>
             
             {error && <Alert variant="danger">{error}</Alert>}
@@ -55,7 +59,7 @@ const RegisterPage = () => {
                 <Form.Control 
                     type="text" 
                     name="nome" 
-                    value={formData.nome} // Importante: vincular ao estado para limpar depois
+                    value={formData.nome} 
                     required 
                     onChange={handleChange} 
                 />
@@ -70,6 +74,20 @@ const RegisterPage = () => {
                     required 
                     onChange={handleChange} 
                 />
+              </Form.Group>
+
+              {/* 3. Novo Campo: Tipo de Permissão */}
+              <Form.Group className="mb-3">
+                <Form.Label>Tipo de Permissão</Form.Label>
+                <Form.Select 
+                    name="role" 
+                    value={formData.role} 
+                    onChange={handleChange}
+                >
+                    <option value="membro">Membro (Padrão)</option>
+                    <option value="operador">Operador (Edita Eventos/Mural)</option>
+                    <option value="admin">Administrador (Acesso Total)</option>
+                </Form.Select>
               </Form.Group>
 
               <Form.Group className="mb-3">
@@ -98,8 +116,6 @@ const RegisterPage = () => {
                 {loading ? "Cadastrando..." : "Cadastrar Usuário"}
               </Button>
             </Form>
-
-            {/* ALTERAÇÃO: Link de "Já tem conta" removido */}
           </Card.Body>
         </Card>
       </Col>

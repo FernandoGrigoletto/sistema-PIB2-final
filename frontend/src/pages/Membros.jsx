@@ -1,111 +1,103 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Modal, Card, Row, Col } from "react-bootstrap";
-import MembroForm from "../components/MembroForm";
-import MembroList from "../components/MembroList";
-import membroService from "../services/membroService";
-import MembroFiltro from "../components/MembroFiltro";
+import { Container, Table, Button, Card, Badge, Spinner, Alert } from "react-bootstrap";
+import { FaUserPlus, FaUsers, FaUserShield, FaUser } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import apiService from "../services/api";
 
 const Membros = () => {
-  const [showForm, setShowForm] = useState(false);
-  const [membros, setMembros] = useState([]);
-  const [membroToDelete, setMembroToDelete] = useState(null);
-  const [membroToEdit, setMembroToEdit] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  const loadMembro = async () => {
-    const dados = await membroService.getAll();
-    setMembros(dados);
-  };
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    loadMembro();
+    fetchUsers();
   }, []);
 
-  const handleSaveMembro = async (membro) => {
-    if (membro.id > 0) {
-      await membroService.update(membro);
-      await loadMembro();
-    } else {
-      const saved = await membroService.add(membro);
-      setMembros([...membros, saved]);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getAllUsers();
+      setUsers(data);
+    } catch (err) {
+      setError("Erro ao carregar lista de membros.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setShowForm(false);
   };
 
-  const handleConfirmDelete = (id) => {
-    setMembroToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const handleEditMembro = (membro) => {
-    setMembroToEdit(membro);
-    setShowForm(true);
-  };
-
-  const handleDeleteMembro = async () => {
-    await membroService.remove(membroToDelete);
-    await loadMembro();
-    setShowDeleteModal(false);
-    setMembroToDelete(null);
+  const getRoleBadge = (role) => {
+    switch (role) {
+      case 'admin': return <Badge bg="danger">Administrador</Badge>;
+      case 'operador': return <Badge bg="warning" text="dark">Operador</Badge>;
+      default: return <Badge bg="secondary">Membro</Badge>;
+    }
   };
 
   return (
     <Container className="py-4">
-      {/* Aplicação da estética de Card/Shadow igual ao RegisterPage */}
-      <Card className="shadow border-0">
-        <Card.Body className="p-4">
-          {/* Cabeçalho alinhado */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="fw-bold text-primary m-0">Cadastro de Membros</h2>
-            <Button
-              variant={showForm ? "secondary" : "success"}
-              onClick={() => setShowForm(!showForm)}
-            >
-              {showForm ? "Cancelar" : "Adicionar Membro"}
-            </Button>
-          </div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-bold text-primary d-flex align-items-center gap-2">
+          <FaUsers /> Gestão de Membros
+        </h2>
+        <Button as={Link} to="/register" variant="success" className="d-flex align-items-center gap-2 shadow-sm">
+          <FaUserPlus /> Novo Usuário
+        </Button>
+      </div>
 
-          {showForm && (
-            <div className="mb-4 p-3 bg-light bg-opacity-25 rounded border">
-              <MembroForm
-                membro={membroToEdit}
-                onSave={handleSaveMembro}
-                onCancel={() => setShowForm(false)}
-              />
+      {error && <Alert variant="danger">{error}</Alert>}
+
+      <Card className="border-0 shadow-sm">
+        <Card.Body className="p-0">
+          {loading ? (
+            <div className="text-center p-5">
+              <Spinner animation="border" variant="primary" />
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <Table hover className="mb-0 align-middle">
+                <thead className="bg-light">
+                  <tr>
+                    <th className="py-3 ps-4">Nome</th>
+                    <th>Email</th>
+                    <th>Função</th>
+                    <th className="text-end pe-4">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.length > 0 ? (
+                    users.map((user) => (
+                      <tr key={user.id}>
+                        <td className="ps-4 fw-bold text-dark">
+                          <div className="d-flex align-items-center gap-2">
+                             <div className="bg-light rounded-circle p-2 text-primary d-flex justify-content-center align-items-center" style={{width: '35px', height: '35px'}}>
+                                {user.role === 'admin' ? <FaUserShield /> : <FaUser />}
+                             </div>
+                             {user.nome}
+                          </div>
+                        </td>
+                        <td className="text-muted">{user.email}</td>
+                        <td>{getRoleBadge(user.role)}</td>
+                        <td className="text-end pe-4">
+                          <Button variant="outline-primary" size="sm" disabled title="Editar (Em breve)">
+                            Editar
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center py-5 text-muted">
+                        Nenhum usuário encontrado.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
             </div>
           )}
-
-          <MembroFiltro onFiltersChange={setMembros} />
-
-          <div className="mt-3">
-            <MembroList
-              membros={membros}
-              onDelete={handleConfirmDelete}
-              onEdit={handleEditMembro}
-            />
-          </div>
         </Card.Body>
       </Card>
-
-      {/* Modal de Exclusão */}
-      <Modal
-        show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar exclusão</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Tem certeza que deseja excluir este membro?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleDeleteMembro}>
-            Excluir
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 };

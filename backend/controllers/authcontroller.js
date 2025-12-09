@@ -42,11 +42,15 @@ export async function Login(req, res) {
 }
 
 // Cadastro
+// ... imports
+
+// Cadastro
 export async function Register(req, res) {
-    const { nome, email, password } = req.body;
+    // 1. Extraímos também o 'role' do corpo da requisição
+    const { nome, email, password, role } = req.body;
 
     if (!nome || !email || !password) {
-        return res.status(400).json({ error: 'Preencha todos os campos' });
+        return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
     }
 
     try {
@@ -55,12 +59,15 @@ export async function Register(req, res) {
             return res.status(400).json({ error: 'Este email já está cadastrado' });
         }
 
-        // CRIPTOGRAFA A SENHA ANTES DE SALVAR
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // 2. Definimos um valor padrão se o role não for enviado
+        const userRole = role || 'membro';
+
+        // 3. Atualizamos o INSERT para usar a variável userRole
         await db.execute(
             'INSERT INTO users (nome, email, password, role) VALUES (?, ?, ?, ?)',
-            [nome, email, hashedPassword, 'membro']
+            [nome, email, hashedPassword, userRole]
         );
 
         return res.status(201).json({ success: true, message: 'Usuário cadastrado com sucesso!' });
@@ -71,6 +78,7 @@ export async function Register(req, res) {
     }
 }
 
+// ... restante do arquivo
 // Obter Usuário Atual
 export async function getMe(req, res) {
     try {
@@ -124,5 +132,22 @@ export async function ForgotPassword(req, res) {
 
     } catch (error) {
         return res.status(500).json({ error: 'Erro ao processar solicitação.' });
+    }
+    
+}
+
+// ... (mantenha todo o código que já existe: Login, Register, getMe, Logout, ForgotPassword)
+
+// --- ADICIONE ESTA NOVA FUNÇÃO NO FINAL DO ARQUIVO ---
+
+// Listar todos os usuários
+export async function getAllUsers(req, res) {
+    try {
+        // Selecionamos apenas os dados seguros (sem senha)
+        const [users] = await db.execute('SELECT id, nome, email, role FROM users ORDER BY nome ASC');
+        return res.json(users);
+    } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+        return res.status(500).json({ error: 'Erro ao buscar lista de usuários' });
     }
 }
