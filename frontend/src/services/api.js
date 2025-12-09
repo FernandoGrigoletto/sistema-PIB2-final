@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000/api"; // Base correta
+const API_BASE_URL = "http://localhost:3000/api";
 
 class ApiService {
   async request(endpoint, options = {}) {
@@ -11,15 +11,17 @@ class ApiService {
       ...options,
       headers,
     };
-    
+
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || errorData.message || "Erro na requisição");
+        throw new Error(
+          errorData.error || errorData.message || "Erro na requisição"
+        );
       }
-      
+
       return response.json().catch(() => ({}));
     } catch (error) {
       console.error("API Error:", error);
@@ -34,6 +36,13 @@ class ApiService {
     });
   }
 
+  async resetPassword(email, newPassword) {
+    return this.request("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ email, newPassword }),
+    });
+  }
+
   async login(email, password) {
     // Chama /api/auth/login
     return this.request("/auth/login", {
@@ -43,13 +52,11 @@ class ApiService {
     });
   }
 
-  // ... métodos existentes (login, logout, checkAuth) ...
-
   async register(nome, email, password) {
     return this.request("/auth/register", {
       method: "POST",
       body: JSON.stringify({ nome, email, password }),
-      credentials: "include", // <--- ADICIONAR ISSO PARA ENVIAR O COOKIE DO ADMIN
+      credentials: "include", // Envia cookie do admin (se necessário)
     });
   }
 
@@ -66,5 +73,3 @@ class ApiService {
 }
 
 export default new ApiService();
-
-
