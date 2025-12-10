@@ -3,7 +3,6 @@ import AuthProvider from './components/AuthProvider';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Footer from './components/Footer';
-import Membros from './pages/Membros';
 
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -13,7 +12,7 @@ import Eventos from './pages/Eventos';
 import EventoDetalhe from './pages/EventoDetalhe';
 import Oracao from './pages/Oracao';
 import FluxoCaixa from './pages/FluxoCaixa';
-import Help from './pages/Help'; // <--- Importação da nova página
+import Help from './pages/Help';
 
 import './App.css';
 
@@ -30,36 +29,25 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
-
-                {/* Gestão de Membros (Admin) */}
-                <Route path="/membros" element={
-                <ProtectedRoute roles={['admin']}>
-                <Membros />
-                </ProtectedRoute>
-                } />
                 
-                {/* Eventos */}
+                {/* A Rota de Ajuda é Pública conforme intenção do projeto */}
+                <Route path="/ajuda" element={<Help />} />
+                
+                {/* Eventos (Público ou Privado? Mantido público conforme original) */}
                 <Route path="/eventos" element={<Eventos />} />
                 <Route path="/evento/:id" element={<EventoDetalhe />} />
                 
                 {/* Rota de Oração */}
                 <Route path="/oracao" element={<Oracao />} />
 
-                {/* Nova Rota de Ajuda (Pública) */}
-                <Route path="/ajuda" element={
-                  <ProtectedRoute roles={['admin', 'operador']}>
-                  <Help />
-                  </ProtectedRoute>
-                  } />
-
-                {/* Rotas de Admin */}
+                {/* Rotas de Admin e Operador */}
                 <Route path="/fluxo-caixa" element={
                   <ProtectedRoute roles={['admin', 'operador']}>
                     <FluxoCaixa />
                   </ProtectedRoute>
                 } />
 
-                {/* Rota de Cadastro apenas para Admin */}
+                {/* Rota de Cadastro apenas para Admin (Painel Administrativo) */}
                 <Route path="/register" element={
                   <ProtectedRoute roles={['admin']}>
                     <RegisterPage />

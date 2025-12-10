@@ -6,17 +6,17 @@ import {
   FaPray, 
   FaArrowRight, 
   FaImage, 
-  FaPlus,
   FaFacebook,
-  FaInstagram // [Novo] Importando ícone do Instagram
+  FaInstagram,
+  FaHandHoldingHeart,
+  FaQrcode,
+  FaImages // <--- Ícone novo para a galeria
 } from "react-icons/fa";
 
 import bannerImage from '../assets/banner-home.jpg';
-import oracaoService from "../services/oracaoService";
 import eventoService from "../services/eventoService";
 
 const Home = () => {
-  const [recentOracoes, setRecentOracoes] = useState([]);
   const [nextEvents, setNextEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -24,13 +24,7 @@ const Home = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [oracoesData, eventosData] = await Promise.all([
-          oracaoService.getAll(),
-          eventoService.getAll()
-        ]);
-
-        setRecentOracoes(oracoesData.slice(0, 3));
-
+        const eventosData = await eventoService.getAll();
         const today = new Date().toISOString().split('T')[0];
         const upcoming = eventosData
           .filter(e => e.brand >= today)
@@ -38,7 +32,6 @@ const Home = () => {
           .slice(0, 3);
         
         setNextEvents(upcoming);
-
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
       } finally {
@@ -107,11 +100,10 @@ const Home = () => {
         </Row>
       </Container>
 
-      {/* Seção de Conteúdo: Eventos e Mural */}
+      {/* Seção de Conteúdo: Eventos */}
       <Container className="py-5 mt-4">
-        <Row className="g-5">
-          {/* Lista de Eventos */}
-          <Col lg={7}>
+        <Row className="g-5 justify-content-center">
+          <Col lg={10}>
              <div className="d-flex align-items-center justify-content-between mb-4">
               <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">Próximos Eventos</h3>
               <Link to="/eventos" className="text-primary fw-bold text-decoration-none small">Ver todos →</Link>
@@ -131,7 +123,7 @@ const Home = () => {
                           {evt.arquivo && <FaImage className="text-muted" size={12} />}
                         </div>
                         <h5 className="fw-bold text-dark mb-1">{evt.titulo || "Evento"}</h5>
-                        <p className="text-muted small mb-0 text-truncate" style={{maxWidth: '400px'}}>{evt.description}</p>
+                        <p className="text-muted small mb-0 text-truncate" style={{maxWidth: '100%'}}>{evt.description}</p>
                       </div>
                       <div className="d-flex align-items-center pe-3">
                          <Link to={`/evento/${evt.id}`} className="btn btn-light btn-sm rounded-circle shadow-sm"><FaArrowRight /></Link>
@@ -146,69 +138,115 @@ const Home = () => {
               </div>
             )}
           </Col>
-
-          {/* Mural de Oração */}
-          <Col lg={5}>
-            <div className="d-flex align-items-center justify-content-between mb-4">
-              <h3 className="fw-bold text-dark m-0 border-start border-4 border-success ps-3">Mural de Oração</h3>
-            </div>
-            <Card className="border-0 shadow-sm">
-              <Card.Body className="p-0">
-                {recentOracoes.length > 0 ? (
-                  <div className="list-group list-group-flush">
-                    {recentOracoes.map((ora) => (
-                      <div key={ora.id} className="list-group-item p-3 border-0 border-bottom">
-                        <div className="d-flex justify-content-between mb-1">
-                          <strong className="text-success">{ora.nome}</strong>
-                          <span className="text-muted x-small">{new Date(ora.data).toLocaleDateString('pt-BR')}</span>
-                        </div>
-                        <p className="mb-0 text-secondary small fst-italic">"{ora.pedido}"</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center p-4">
-                    <p className="text-muted mb-0">Nenhum pedido recente.</p>
-                  </div>
-                )}
-                <div className="p-3 bg-light">
-                  <Link to="/oracao" className="btn btn-success w-100 btn-sm fw-bold shadow-sm">
-                    <FaPlus className="me-1"/> Deixar meu pedido
-                  </Link>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
         </Row>
       </Container>
 
-      {/* --- SEÇÃO REDES SOCIAIS (FACEBOOK E INSTAGRAM) --- */}
-      <Container className="py-5 mb-5">
-        <h3 className="fw-bold text-dark mb-4 border-start border-4 border-primary ps-3">
-          Siga Nossas Redes Sociais
-        </h3>
-        <Row className="justify-content-center g-4">
+      {/* --- SEÇÃO DÍZIMOS E OFERTAS --- */}
+      <section className="bg-white py-5 my-4 shadow-sm border-top border-bottom">
+        <Container>
+          <Row className="align-items-center g-5">
+            <Col md={7}>
+              <div className="d-flex align-items-center gap-3 mb-3 text-success">
+                <div className="bg-success bg-opacity-10 p-3 rounded-circle">
+                  <FaHandHoldingHeart size={32} />
+                </div>
+                <h2 className="fw-bold mb-0 text-dark">Dízimos e Ofertas</h2>
+              </div>
+              <p className="lead text-muted mb-4">
+                "Cada um contribua segundo propôs no seu coração; não com tristeza, ou por necessidade; porque Deus ama ao que dá com alegria."
+                <br/>
+                <small className="fst-italic text-success fw-bold">- 2 Coríntios 9:7</small>
+              </p>
+              <div className="p-4 bg-light rounded-3 border-start border-4 border-success">
+                <h5 className="fw-bold text-dark mb-2">Dados para Contribuição (PIX):</h5>
+                <p className="font-monospace fs-4 mb-1 text-success fw-bold">CNPJ: 00.000.000/0001-00</p>
+                <p className="text-muted mb-0 small">
+                  Banco do Brasil | Agência: 0000 | Conta: 00000-0 <br/>
+                  Primeira Igreja Batista em Osvaldo Cruz
+                </p>
+              </div>
+            </Col>
+            <Col md={5} className="text-center">
+              <div className="d-inline-block p-3 border rounded-4 bg-white shadow">
+                <div className="mb-2 bg-light d-flex align-items-center justify-content-center rounded" style={{width: '250px', height: '250px', overflow: 'hidden'}}>
+                  <img 
+                    src="/qrcode-pix.jpg" 
+                    alt="QR Code PIX" 
+                    className="img-fluid"
+                    onError={(e) => {
+                      e.target.onerror = null; 
+                      e.target.src="https://placehold.co/250x250/png?text=QR+Code+PIX"; 
+                    }}
+                  />
+                </div>
+                <div className="d-flex align-items-center justify-content-center gap-2 text-muted fw-bold small">
+                   <FaQrcode /> Escaneie para doar
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      {/* --- NOVA SEÇÃO: GALERIA DE FOTOS --- */}
+      <section className="py-5 position-relative overflow-hidden text-white mb-5">
+        {/* Imagem de Fundo com Overlay Escuro */}
+        <div 
+          className="position-absolute top-0 start-0 w-100 h-100" 
+          style={{
+            backgroundImage: `url(${bannerImage})`, // Reutilizando o banner, mas você pode por outro
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'brightness(0.3)' // Escurece a imagem para o texto aparecer
+          }}
+        ></div>
+        
+        <Container className="position-relative z-1 text-center py-4">
+          <div className="d-inline-block p-3 rounded-circle border border-2 border-white mb-3 text-white">
+            <FaImages size={32} />
+          </div>
+          <h2 className="display-6 fw-bold mb-3">Galeria de Fotos</h2>
+          <p className="lead mb-4 mx-auto" style={{ maxWidth: '700px' }}>
+            Reviva os momentos especiais da nossa comunidade. Confira as fotos dos nossos cultos, eventos e celebrações.
+          </p>
           
-          {/* Coluna Facebook */}
-          <Col lg={6}>
-            <div className="d-flex align-items-center justify-content-between mb-2">
-              <h5 className="fw-bold text-primary m-0"><FaFacebook className="me-2"/>Facebook</h5>
-              <a 
-                href="https://www.facebook.com/pibosvaldocruz/?locale=pt_BR" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="small text-decoration-none fw-bold"
-              >
-                Visitar Página →
-              </a>
-            </div>
-            {/* Altura mínima ajustada para alinhar com o Instagram */}
-            <Card className="border-0 shadow-lg bg-light h-100" style={{ borderRadius: '1rem', minHeight: '500px' }}>
-              <Card.Body className="p-3 text-center d-flex flex-column justify-content-center">
-                <div className="bg-white p-2 rounded shadow-sm d-inline-block mx-auto" style={{ width: '100%', maxWidth: '500px' }}>
-                  <div style={{ overflow: 'hidden' }}>
+          {/* BOTÃO LINK GOOGLE DRIVE */}
+          <Button 
+            href="https://drive.google.com/drive/folders/SEU_CODIGO_DO_DRIVE_AQUI" // <--- INSIRA SEU LINK AQUI
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="light" 
+            size="lg" 
+            className="rounded-pill px-5 fw-bold text-dark shadow-lg"
+          >
+            Acessar Galeria Completa
+          </Button>
+        </Container>
+      </section>
+
+      {/* --- SEÇÃO REDES SOCIAIS --- */}
+      <Container className="py-5 mb-5">
+        <div className="d-flex align-items-center justify-content-between mb-4">
+          <h3 className="fw-bold text-dark m-0 border-start border-4 border-primary ps-3">
+            Nossas Redes Sociais
+          </h3>
+        </div>
+
+        <Row className="g-4 justify-content-center">
+          
+          {/* FACEBOOK */}
+          <Col md={6}>
+            <Card className="border-0 shadow-lg bg-white h-100" style={{ borderRadius: '1rem' }}>
+              <Card.Body className="p-4 d-flex flex-column align-items-center">
+                <div className="d-flex align-items-center gap-2 mb-3 text-primary">
+                  <FaFacebook size={32} />
+                  <h4 className="fw-bold mb-0">Facebook</h4>
+                </div>
+                
+                <div className="bg-light p-2 rounded shadow-sm w-100" style={{ maxWidth: '500px' }}>
+                  <div style={{ overflow: 'hidden', width: '100%' }}>
                     <iframe 
-                      src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fpibosvaldocruz&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                      src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fpibosvaldocruz&tabs=timeline&width=500&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
                       width="100%"
                       height="500" 
                       style={{border: 'none', overflow: 'hidden', display: 'block'}} 
@@ -220,62 +258,47 @@ const Home = () => {
                     ></iframe>
                   </div>
                 </div>
+                
+                <a 
+                  href="https://www.facebook.com/pibosvaldocruz/?locale=pt_BR" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-primary w-100 mt-3 fw-bold rounded-pill"
+                >
+                  Visitar Página no Facebook
+                </a>
               </Card.Body>
             </Card>
           </Col>
 
-          {/* Coluna Instagram */}
-          <Col lg={6}>
-            <div className="d-flex align-items-center justify-content-between mb-2">
-              <h5 className="fw-bold text-danger m-0"><FaInstagram className="me-2"/>Instagram</h5>
-              <a 
-                href="https://www.instagram.com/pibocruz/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="small text-decoration-none fw-bold text-danger"
-              >
-                Visitar Perfil →
-              </a>
-            </div>
-            
-            {/* Card estilizado com gradiente do Instagram */}
-            <Card className="border-0 shadow-lg h-100 text-white" style={{ borderRadius: '1rem', background: 'linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d)' }}>
-              <Card.Body className="p-5 d-flex flex-column align-items-center justify-content-center text-center">
-                
-                {/* Foto do Perfil (Logo) */}
-                <div className="bg-white p-1 rounded-circle mb-4 shadow-lg" style={{ width: '120px', height: '120px' }}>
-                  <img 
-                    src="/logo-igreja.jpg" 
-                    alt="Logo PIB" 
-                    className="rounded-circle w-100 h-100" 
-                    style={{ objectFit: 'cover' }}
-                    onError={(e) => {e.target.style.display='none'}} 
-                  />
-                   {/* Fallback caso a imagem não carregue */}
-                   <div className="w-100 h-100 rounded-circle d-flex align-items-center justify-content-center text-danger bg-white" style={{display: 'none'}}> 
-                      <FaInstagram size={50} />
-                   </div>
+          {/* INSTAGRAM */}
+          <Col md={6}>
+            <Card className="border-0 shadow-lg bg-white h-100" style={{ borderRadius: '1rem' }}>
+              <Card.Body className="p-4 d-flex flex-column align-items-center justify-content-center text-center">
+                <div className="d-flex align-items-center gap-2 mb-3" style={{ color: '#E1306C' }}>
+                  <FaInstagram size={32} />
+                  <h4 className="fw-bold mb-0">Instagram</h4>
                 </div>
                 
-                <h3 className="fw-bold mb-1">@pibocruz</h3>
-                <p className="mb-4 opacity-75">Siga nosso perfil oficial para acompanhar fotos, stories e novidades da igreja.</p>
-                
+                <div className="my-4">
+                  <div className="rounded-circle p-1 d-inline-block mb-3" style={{background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'}}>
+                     <div className="bg-white rounded-circle p-1">
+                        <img src="/logo-igreja.jpg" alt="Insta" className="rounded-circle" style={{width: '120px', height: '120px', objectFit: 'cover'}} />
+                     </div>
+                  </div>
+                  <h5 className="fw-bold">@pibocruz</h5>
+                  <p className="text-muted small">Acompanhe nossas fotos, stories e momentos especiais.</p>
+                </div>
+
                 <a 
-                  href="https://www.instagram.com/pibocruz/" 
+                  href="https://www.instagram.com/pibocruz" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="btn btn-light text-danger fw-bold rounded-pill px-5 py-2 shadow-sm scale-hover"
+                  className="btn text-white w-100 mt-auto fw-bold rounded-pill"
+                  style={{ background: 'linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d)' }}
                 >
-                  <FaInstagram className="me-2"/> Seguir no Instagram
+                  Seguir no Instagram
                 </a>
-
-                {/* Simulação visual do feed (quadrados) para dar contexto */}
-                <div className="mt-5 d-flex gap-2 justify-content-center opacity-50">
-                   <div className="bg-white rounded" style={{width: '60px', height: '60px'}}></div>
-                   <div className="bg-white rounded" style={{width: '60px', height: '60px'}}></div>
-                   <div className="bg-white rounded" style={{width: '60px', height: '60px'}}></div>
-                </div>
-
               </Card.Body>
             </Card>
           </Col>
