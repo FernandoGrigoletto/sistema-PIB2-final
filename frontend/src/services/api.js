@@ -53,17 +53,17 @@ class ApiService {
   }
 
 
-  // Atualize o método register para aceitar 'role'
-  async register(nome, email, password, role) {
+// ... restante do código igual ...
+
+  async register(nome, email, password, role = 'membro', permissions = {}) {
     return this.request("/auth/register", {
       method: "POST",
-      // Envie o role no corpo da requisição
-      body: JSON.stringify({ nome, email, password, role }),
-      credentials: "include",
+      body: JSON.stringify({ nome, email, password, role, permissions }),
+      credentials: "include", 
     });
   }
 
-// ...
+
 
   async logout() {
     return this.request("/auth/logout", {

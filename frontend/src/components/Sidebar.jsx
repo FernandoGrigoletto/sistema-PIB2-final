@@ -3,12 +3,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { 
   FaHome, 
   FaCalendarAlt, 
+  FaPray, 
   FaMoneyBillWave, 
   FaSignOutAlt, 
   FaUserCircle,
   FaUserPlus,
-  FaQuestionCircle
-} from "react-icons/fa"; // FaPray foi removido pois não é mais usado
+  FaQuestionCircle,
+  FaListAlt
+} from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 
 const Sidebar = () => {
@@ -20,7 +22,6 @@ const Sidebar = () => {
     navigate("/login");
   };
 
-  // MELHORIA: Estilização dinâmica mais robusta com Bootstrap
   const getNavLinkClass = ({ isActive }) => {
     const baseClasses = "nav-link d-flex align-items-center gap-3 py-3 px-4 transition-all";
     const activeClasses = "bg-primary bg-opacity-10 text-primary fw-bold border-end border-4 border-primary";
@@ -29,14 +30,22 @@ const Sidebar = () => {
     return `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`;
   };
 
-  // Verificando roles (papéis de usuário)
-  const isAdmin = user && (user.role === 'admin' || user.role === 'operador');
-  const isSuperAdmin = user && user.role === 'admin';
+  // --- LÓGICA DE PERMISSÕES ---
+  const isAdmin = user?.role === 'admin';
+  const isOperador = user?.role === 'operador';
+  
+  // Função auxiliar para checar acesso
+  const hasAccess = (permissionKey) => {
+    if (!user) return false;
+    if (isAdmin) return true; // Admin tem tudo
+    // Se for operador, verifica o objeto permissions
+    return user.permissions && user.permissions[permissionKey] === true;
+  };
 
   return (
     <div className="d-flex flex-column flex-shrink-0 bg-white sidebar-container shadow-sm h-100" style={{ width: '280px' }}>
       
-      {/* Cabeçalho com Logo */}
+      {/* Cabeçalho */}
       <div className="d-flex align-items-center p-4 border-bottom bg-light bg-opacity-25">
         <img 
             src="/logo-igreja.jpg" 
@@ -50,7 +59,6 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Menu de Navegação */}
       <Nav className="flex-column mb-auto mt-3 gap-1">
         <Nav.Item>
           <NavLink to="/" className={getNavLinkClass} end>
@@ -58,28 +66,47 @@ const Sidebar = () => {
           </NavLink>
         </Nav.Item>
 
+        {/* Link Eventos: Visível se tiver permissão 'eventos' ou for admin */}
         <Nav.Item>
           <NavLink to="/eventos" className={getNavLinkClass}>
             <FaCalendarAlt size={18} /> Eventos
           </NavLink>
         </Nav.Item>
 
-        {/* Link Mural de Oração REMOVIDO */}
+        {/* Link Oracao Publico */}
+        <Nav.Item>
+          <NavLink to="/oracao" className={getNavLinkClass}>
+            <FaPray size={18} /> Pedir Oração
+          </NavLink>
+        </Nav.Item>
 
-        {/* Link para Fluxo de Caixa (Admin e Operador) */}
-        {isAdmin && (
+        {/* --- SEÇÃO ADMINISTRATIVA --- */}
+        {(isAdmin || isOperador) && (
           <>
             <div className="text-uppercase text-muted fw-bold small px-4 mt-4 mb-2" style={{fontSize: '0.7rem'}}>Administração</div>
-            <Nav.Item>
-              <NavLink to="/fluxo-caixa" className={getNavLinkClass}>
-                <FaMoneyBillWave size={18} /> Fluxo de Caixa
-              </NavLink>
-            </Nav.Item>
+            
+            {/* Lista de Orações (Admin ou Permissão Específica) */}
+            {hasAccess('pedidos_oracao_admin') && (
+              <Nav.Item>
+                <NavLink to="/pedidos-oracao" className={getNavLinkClass}>
+                  <FaListAlt size={18} /> Lista de Orações
+                </NavLink>
+              </Nav.Item>
+            )}
+
+            {/* Fluxo de Caixa (Admin ou Permissão Específica) */}
+            {hasAccess('fluxo_caixa') && (
+              <Nav.Item>
+                <NavLink to="/fluxo-caixa" className={getNavLinkClass}>
+                  <FaMoneyBillWave size={18} /> Fluxo de Caixa
+                </NavLink>
+              </Nav.Item>
+            )}
           </>
         )}
 
-        {/* Link de Ajuda (Visível para todos ou admins conforme regra) */}
-        {isAdmin && (
+        {/* Ajuda visível para internos */}
+        {(isAdmin || isOperador) && (
           <Nav.Item>
             <NavLink to="/ajuda" className={getNavLinkClass}>
               <FaQuestionCircle size={18} /> Ajuda & Suporte
@@ -87,8 +114,8 @@ const Sidebar = () => {
           </Nav.Item>
         )}
 
-        {/* Link Novo Usuário (Apenas Super Admin) */}
-        {isSuperAdmin && (
+        {/* Cadastro de Usuário (Apenas Admin pode criar outros) */}
+        {isAdmin && (
           <Nav.Item>
             <NavLink to="/register" className={getNavLinkClass}>
               <FaUserPlus size={18} /> Novo Usuário
@@ -97,7 +124,6 @@ const Sidebar = () => {
         )}
       </Nav>
 
-      {/* Rodapé do Sidebar (Perfil do Usuário) */}
       <div className="border-top p-3 bg-light bg-opacity-50 mt-auto">
         {user ? (
           <div className="d-flex align-items-center justify-content-between p-2 rounded hover-bg-white transition-all">
@@ -110,7 +136,7 @@ const Sidebar = () => {
                   {user.nome || user.email.split('@')[0]}
                 </strong>
                 <span className="text-muted" style={{fontSize: '0.7rem'}}>
-                  {user.role === 'admin' ? 'Administrador' : user.role === 'operador' ? 'Operador' : 'Membro'}
+                  {user.role === 'admin' ? 'Admin' : 'Equipe'}
                 </span>
               </div>
             </div>
@@ -125,7 +151,7 @@ const Sidebar = () => {
           </div>
         ) : (
           <NavLink to="/login" className="btn btn-primary w-100 shadow-sm fw-bold">
-            Entrar no Sistema
+            Entrar
           </NavLink>
         )}
       </div>

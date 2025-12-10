@@ -10,7 +10,7 @@ import {
   FaInstagram,
   FaHandHoldingHeart,
   FaQrcode,
-  FaImages // <--- Ícone novo para a galeria
+  FaImages
 } from "react-icons/fa";
 
 import bannerImage from '../assets/banner-home.jpg';
@@ -84,14 +84,15 @@ const Home = () => {
           <Col md={6}>
             <Card className="h-100 border-0 shadow-lg feature-card text-center">
               <Card.Body className="p-4 d-flex flex-column align-items-center">
-                <div className="icon-circle bg-success bg-opacity-10 text-success mb-3">
+                {/* MUDANÇA AQUI: De success (verde) para primary (azul) */}
+                <div className="icon-circle bg-primary bg-opacity-10 text-primary mb-3">
                   <FaPray size={28} />
                 </div>
                 <Card.Title className="fw-bold">Pedidos de Oração</Card.Title>
                 <Card.Text className="text-muted small mb-4">
                   Um espaço para intercedermos uns pelos outros.
                 </Card.Text>
-                <Button as={Link} to="/oracao" variant="outline-success" className="mt-auto w-100 rounded-pill fw-bold">
+                <Button as={Link} to="/oracao" variant="outline-primary" className="mt-auto w-100 rounded-pill fw-bold">
                   Deixar Pedido
                 </Button>
               </Card.Body>
@@ -141,27 +142,32 @@ const Home = () => {
         </Row>
       </Container>
 
-      {/* --- SEÇÃO DÍZIMOS E OFERTAS --- */}
+      {/* --- SEÇÃO DÍZIMOS E OFERTAS (AGORA AZUL) --- */}
       <section className="bg-white py-5 my-4 shadow-sm border-top border-bottom">
         <Container>
           <Row className="align-items-center g-5">
             <Col md={7}>
-              <div className="d-flex align-items-center gap-3 mb-3 text-success">
-                <div className="bg-success bg-opacity-10 p-3 rounded-circle">
+              {/* Ícone e Título em Azul */}
+              <div className="d-flex align-items-center gap-3 mb-3 text-primary">
+                <div className="bg-primary bg-opacity-10 p-3 rounded-circle">
                   <FaHandHoldingHeart size={32} />
                 </div>
                 <h2 className="fw-bold mb-0 text-dark">Dízimos e Ofertas</h2>
               </div>
+              
               <p className="lead text-muted mb-4">
                 "Cada um contribua segundo propôs no seu coração; não com tristeza, ou por necessidade; porque Deus ama ao que dá com alegria."
                 <br/>
-                <small className="fst-italic text-success fw-bold">- 2 Coríntios 9:7</small>
+                {/* Referência Bíblica em Azul */}
+                <small className="fst-italic text-primary fw-bold">- 2 Coríntios 9:7</small>
               </p>
-              <div className="p-4 bg-light rounded-3 border-start border-4 border-success">
+
+              {/* Box de Dados Bancários em Azul */}
+              <div className="p-4 bg-light rounded-3 border-start border-4 border-primary">
                 <h5 className="fw-bold text-dark mb-2">Dados para Contribuição (PIX):</h5>
-                <p className="font-monospace fs-4 mb-1 text-success fw-bold">CNPJ: 00.000.000/0001-00</p>
+                <p className="font-monospace fs-4 mb-1 text-primary fw-bold">CNPJ: 53.341.459/0001-15</p>
                 <p className="text-muted mb-0 small">
-                  Banco do Brasil | Agência: 0000 | Conta: 00000-0 <br/>
+                  Banco Santander | Agência: 0177 | Conta: 13005652-5 <br/>
                   Primeira Igreja Batista em Osvaldo Cruz
                 </p>
               </div>
@@ -188,16 +194,15 @@ const Home = () => {
         </Container>
       </section>
 
-      {/* --- NOVA SEÇÃO: GALERIA DE FOTOS --- */}
+      {/* --- SEÇÃO: GALERIA DE FOTOS --- */}
       <section className="py-5 position-relative overflow-hidden text-white mb-5">
-        {/* Imagem de Fundo com Overlay Escuro */}
         <div 
           className="position-absolute top-0 start-0 w-100 h-100" 
           style={{
-            backgroundImage: `url(${bannerImage})`, // Reutilizando o banner, mas você pode por outro
+            backgroundImage: `url(${bannerImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            filter: 'brightness(0.3)' // Escurece a imagem para o texto aparecer
+            filter: 'brightness(0.3)'
           }}
         ></div>
         
@@ -210,9 +215,8 @@ const Home = () => {
             Reviva os momentos especiais da nossa comunidade. Confira as fotos dos nossos cultos, eventos e celebrações.
           </p>
           
-          {/* BOTÃO LINK GOOGLE DRIVE */}
           <Button 
-            href="https://drive.google.com/drive/folders/SEU_CODIGO_DO_DRIVE_AQUI" // <--- INSIRA SEU LINK AQUI
+            href="https://drive.google.com/drive/folders/SEU_CODIGO_DO_DRIVE_AQUI" 
             target="_blank"
             rel="noopener noreferrer"
             variant="light" 
@@ -234,7 +238,6 @@ const Home = () => {
 
         <Row className="g-4 justify-content-center">
           
-          {/* FACEBOOK */}
           <Col md={6}>
             <Card className="border-0 shadow-lg bg-white h-100" style={{ borderRadius: '1rem' }}>
               <Card.Body className="p-4 d-flex flex-column align-items-center">
@@ -271,7 +274,6 @@ const Home = () => {
             </Card>
           </Col>
 
-          {/* INSTAGRAM */}
           <Col md={6}>
             <Card className="border-0 shadow-lg bg-white h-100" style={{ borderRadius: '1rem' }}>
               <Card.Body className="p-4 d-flex flex-column align-items-center justify-content-center text-center">

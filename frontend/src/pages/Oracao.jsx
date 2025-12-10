@@ -22,17 +22,17 @@ const Oracoes = () => {
           
           <Col md={11} lg={10} xl={8}>
             
+            {/* Cartão Principal */}
             <Card className="border-0 shadow-lg rounded-4 overflow-hidden">
               
-              {/* Cabeçalho */}
-              <div className="bg-success p-4 text-center text-white position-relative" 
-                   style={{ background: 'linear-gradient(135deg, #198754 0%, #20c997 100%)' }}>
-                <div className="position-absolute top-0 start-50 translate-middle rounded-circle bg-white text-success d-flex align-items-center justify-content-center shadow-sm"
+              {/* Cabeçalho Decorativo (MUDANÇA: bg-primary e gradiente azul) */}
+              <div className="bg-primary p-4 text-center text-white position-relative" 
+                   style={{ background: 'linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%)' }}>
+                <div className="position-absolute top-0 start-50 translate-middle rounded-circle bg-white text-primary d-flex align-items-center justify-content-center shadow-sm"
                      style={{ width: '70px', height: '70px', marginTop: '10px' }}>
                   <FaPray size={32} />
                 </div>
                 <div className="mt-4 pt-2">
-                  {/* Título ajustado para refletir a ação */}
                   <h2 className="fw-bold mb-1">Faça seu Pedido de Oração</h2>
                   <p className="mb-0 opacity-75 lead">Estamos aqui para interceder por você</p>
                 </div>
@@ -40,21 +40,27 @@ const Oracoes = () => {
 
               <Card.Body className="p-4 p-md-5 bg-white">
                 
+                {/* Versículo Bíblico (MUDANÇA: text-primary e barras azuis) */}
                 <div className="text-center mb-5 px-md-5">
                   <p className="text-muted fst-italic fs-5">
                     "Não andem ansiosos por coisa alguma, mas em tudo, pela oração e súplicas, 
                     e com ação de graças, apresentem seus pedidos a Deus."
                   </p>
-                  <div className="d-flex align-items-center justify-content-center gap-2 text-success small fw-bold">
-                    <span style={{ height: '2px', width: '40px', background: '#198754' }}></span>
+                  <div className="d-flex align-items-center justify-content-center gap-2 text-primary small fw-bold">
+                    <span style={{ height: '2px', width: '40px', background: '#0d6efd' }}></span>
                     FILIPENSES 4:6
-                    <span style={{ height: '2px', width: '40px', background: '#198754' }}></span>
+                    <span style={{ height: '2px', width: '40px', background: '#0d6efd' }}></span>
                   </div>
                 </div>
 
                 {/* Área do Formulário */}
                 <div className="bg-light bg-opacity-50 p-4 p-md-5 rounded-4 border border-light shadow-sm">
-                  {/* Formulário Renderizado (Agora Gigante) */}
+                  <div className="d-flex align-items-center mb-4 text-secondary border-bottom pb-2">
+                    <FaHeart className="me-2 text-danger" size={20} />
+                    <span className="fw-bold text-uppercase ls-1">Preencha seu pedido</span>
+                  </div>
+                  
+                  {/* Formulário Renderizado */}
                   <OracaoForm onSave={handleSaveOracao} />
                 </div>
 

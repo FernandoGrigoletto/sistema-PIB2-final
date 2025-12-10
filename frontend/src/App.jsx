@@ -13,6 +13,7 @@ import EventoDetalhe from './pages/EventoDetalhe';
 import Oracao from './pages/Oracao';
 import FluxoCaixa from './pages/FluxoCaixa';
 import Help from './pages/Help';
+import PedidosOracao from './pages/PedidosOracao'; // <--- IMPORTAR A NOVA PÁGINA
 
 import './App.css';
 
@@ -30,24 +31,33 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
                 
-                {/* A Rota de Ajuda é Pública conforme intenção do projeto */}
-                <Route path="/ajuda" element={<Help />} />
-                
-                {/* Eventos (Público ou Privado? Mantido público conforme original) */}
                 <Route path="/eventos" element={<Eventos />} />
                 <Route path="/evento/:id" element={<EventoDetalhe />} />
                 
-                {/* Rota de Oração */}
+                {/* Página Pública de Pedido (Formulário) */}
                 <Route path="/oracao" element={<Oracao />} />
 
-                {/* Rotas de Admin e Operador */}
+                {/* Rota de Ajuda */}
+                <Route path="/ajuda" element={
+                  <ProtectedRoute roles={['admin', 'operador']}>
+                    <Help />
+                  </ProtectedRoute>
+                } />
+
+                {/* Rotas de Admin */}
                 <Route path="/fluxo-caixa" element={
                   <ProtectedRoute roles={['admin', 'operador']}>
                     <FluxoCaixa />
                   </ProtectedRoute>
                 } />
 
-                {/* Rota de Cadastro apenas para Admin (Painel Administrativo) */}
+                {/* --- NOVA ROTA: LISTA DE ORAÇÕES (ADMIN) --- */}
+                <Route path="/pedidos-oracao" element={
+                  <ProtectedRoute roles={['admin', 'operador']}>
+                    <PedidosOracao />
+                  </ProtectedRoute>
+                } />
+
                 <Route path="/register" element={
                   <ProtectedRoute roles={['admin']}>
                     <RegisterPage />

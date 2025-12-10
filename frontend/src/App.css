@@ -270,3 +270,48 @@
   overflow-y: auto;
   height: 100vh;
 }
+
+/* --- ESTILOS DE IMPRESSÃO --- */
+@media print {
+  /* Esconde Sidebar, Rodapé e elementos marcados como 'no-print' */
+  .sidebar-container, 
+  footer, 
+  .no-print {
+    display: none !important;
+  }
+
+  /* Esconde a coluna de ações da tabela */
+  .print-hide-col {
+    display: none !important;
+  }
+
+  /* Ajusta o layout para ocupar a folha inteira */
+  .app-container {
+    display: block !important;
+  }
+  
+  .content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Remove sombras e bordas desnecessárias para economizar tinta */
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Garante que o texto preto fique bem legível */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Ajusta tamanho da fonte para caber mais na folha se necessário */
+  table {
+    font-size: 12px;
+  }
+}

@@ -8,11 +8,9 @@ export async function Login(req, res) {
     const { email, password } = req.body;
     
     try {
-        // Busca usuário pelo email
         const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
         const user = rows[0];
 
-        // Se usuário não existe OU a senha não bate (compara a senha enviada com o hash do banco)
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ error: 'Credenciais inválidas' });
         }
@@ -30,9 +28,23 @@ export async function Login(req, res) {
             maxAge: 24 * 60 * 60 * 1000
         });
 
+        // Parse das permissões (se existirem)
+        let permissions = {};
+        try {
+            permissions = user.permissions ? JSON.parse(user.permissions) : {};
+        } catch (e) {
+            permissions = {};
+        }
+
         return res.json({ 
             success: true,
-            user: { id: user.id, nome: user.nome, email: user.email, role: user.role } 
+            user: { 
+                id: user.id, 
+                nome: user.nome, 
+                email: user.email, 
+                role: user.role,
+                permissions: permissions // <--- Retorna permissões
+            } 
         });
 
     } catch (error) {
@@ -41,13 +53,10 @@ export async function Login(req, res) {
     }
 }
 
-// Cadastro
-// ... imports
-
-// Cadastro
+// Cadastro (Atualizado para aceitar Role e Permissões)
 export async function Register(req, res) {
-    // 1. Extraímos também o 'role' do corpo da requisição
-    const { nome, email, password, role } = req.body;
+    // Agora aceita role e permissions do corpo da requisição
+    const { nome, email, password, role, permissions } = req.body;
 
     if (!nome || !email || !password) {
         return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
@@ -60,14 +69,16 @@ export async function Register(req, res) {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // 2. Definimos um valor padrão se o role não for enviado
+        
+        // Define o papel (padrão 'membro' se não vier nada)
         const userRole = role || 'membro';
+        
+        // Prepara as permissões como JSON string
+        const permissionsString = permissions ? JSON.stringify(permissions) : '{}';
 
-        // 3. Atualizamos o INSERT para usar a variável userRole
         await db.execute(
-            'INSERT INTO users (nome, email, password, role) VALUES (?, ?, ?, ?)',
-            [nome, email, hashedPassword, userRole]
+            'INSERT INTO users (nome, email, password, role, permissions) VALUES (?, ?, ?, ?, ?)',
+            [nome, email, hashedPassword, userRole, permissionsString]
         );
 
         return res.status(201).json({ success: true, message: 'Usuário cadastrado com sucesso!' });
@@ -78,15 +89,22 @@ export async function Register(req, res) {
     }
 }
 
-// ... restante do arquivo
 // Obter Usuário Atual
 export async function getMe(req, res) {
     try {
-        const [rows] = await db.execute('SELECT id, nome, email, role FROM users WHERE id = ?', [req.user.sub]);
+        // Agora busca também a coluna permissions
+        const [rows] = await db.execute('SELECT id, nome, email, role, permissions FROM users WHERE id = ?', [req.user.sub]);
         const user = rows[0];
 
         if (!user) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        // Parse do JSON de permissões antes de enviar
+        try {
+            user.permissions = user.permissions ? JSON.parse(user.permissions) : {};
+        } catch (e) {
+            user.permissions = {};
         }
 
         return res.json(user);
@@ -95,59 +113,26 @@ export async function getMe(req, res) {
     }
 }
 
-// Logout
+// Logout e ForgotPassword permanecem iguais...
 export async function Logout(req, res) {
     res.clearCookie('auth_token');
     return res.json({ success: true, message: 'Logout realizado' });
 }
 
-// Esqueci a Senha
 export async function ForgotPassword(req, res) {
+    // ... (mesmo código anterior)
     const { email } = req.body;
-
     try {
         const [user] = await db.execute('SELECT id, nome FROM users WHERE email = ?', [email]);
-
-        if (user.length === 0) {
-            return res.json({ success: true, message: 'Se o e-mail existir, você receberá um link.' });
-        }
-
+        if (user.length === 0) return res.json({ success: true, message: 'Se o e-mail existir, você receberá um link.' });
         const token = crypto.randomBytes(20).toString('hex');
         const now = new Date();
         now.setHours(now.getHours() + 1);
-
-        await db.execute(
-            'UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?',
-            [token, now, user[0].id]
-        );
-
+        await db.execute('UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?', [token, now, user[0].id]);
         const resetLink = `http://localhost:5173/reset-password/${token}`;
-        
-        console.log("==================================================");
-        console.log("📧 EMAIL DE RECUPERAÇÃO (SIMULADO):");
         console.log(`Link: ${resetLink}`);
-        console.log("==================================================");
-
         return res.json({ success: true, message: 'Link de recuperação enviado (verifique o console).' });
-
     } catch (error) {
         return res.status(500).json({ error: 'Erro ao processar solicitação.' });
-    }
-    
-}
-
-// ... (mantenha todo o código que já existe: Login, Register, getMe, Logout, ForgotPassword)
-
-// --- ADICIONE ESTA NOVA FUNÇÃO NO FINAL DO ARQUIVO ---
-
-// Listar todos os usuários
-export async function getAllUsers(req, res) {
-    try {
-        // Selecionamos apenas os dados seguros (sem senha)
-        const [users] = await db.execute('SELECT id, nome, email, role FROM users ORDER BY nome ASC');
-        return res.json(users);
-    } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-        return res.status(500).json({ error: 'Erro ao buscar lista de usuários' });
     }
 }
