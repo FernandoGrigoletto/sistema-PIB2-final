@@ -1,4 +1,4 @@
-mport { Button, Col, Container, Modal, Row } from "react-bootstrap";
+import { Button, Col, Container, Modal, Row } from "react-bootstrap";
 import MembroForm from "../components/MembroForm";
 import { useEffect, useState } from "react";
 import MembroList from "../components/MembroList";
