@@ -1,42 +1,39 @@
-const API_URL = 'http://localhost:3000/api/users';
+import apiService from './api';
 
-const getHeaders = () => {
-    const token = localStorage.getItem('token');
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-};
-
-const getAll = async () => {
-    const response = await fetch(API_URL, { headers: getHeaders() });
-    return response.json();
-};
-
-const create = async (user) => {
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(user)
+const userService = {
+  // Listar todos
+  getAll: async () => {
+    // ADICIONADO: credentials: 'include' para enviar o cookie
+    return apiService.request('/auth/users', {
+      credentials: 'include' 
     });
-    return response.json();
-};
+  },
 
-const update = async (id, user) => {
-    const response = await fetch(`${API_URL}/${id}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify(user)
+  // Criar (Reutiliza a rota de registro)
+  create: async (userData) => {
+    return apiService.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+      credentials: 'include' // Necessário para autenticação de admin
     });
-    return response.json();
-};
+  },
 
-const remove = async (id) => {
-    const response = await fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
-        headers: getHeaders()
+  // Atualizar
+  update: async (id, userData) => {
+    return apiService.request(`/auth/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+      credentials: 'include' // Necessário
     });
-    return response.json();
+  },
+
+  // Remover
+  remove: async (id) => {
+    return apiService.request(`/auth/users/${id}`, {
+      method: 'DELETE',
+      credentials: 'include' // Necessário
+    });
+  }
 };
 
-export default { getAll, create, update, remove };
+export default userService;

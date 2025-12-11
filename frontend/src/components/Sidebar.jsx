@@ -12,7 +12,7 @@ import {
   FaListAlt
 } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
-
+import { FaUsersCog } from "react-icons/fa";
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
