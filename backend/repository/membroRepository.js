@@ -1,11 +1,10 @@
-const db = require("../config/database");
-
-const Membro = require("../models/membros");
+import db from '../config/database.js';
+import Membro from '../models/Membro.js';
 
 class MembroRepository {
   async findAll(filters = {}) {
     try {
-      let query = "select * from membros";
+      let query = "SELECT * FROM membros";
       const condicoes = [];
       const params = [];
 
@@ -30,25 +29,24 @@ class MembroRepository {
       }
 
       if (condicoes.length > 0) {
-        query += " where " + condicoes.join(" and ");
+        query += " WHERE " + condicoes.join(" AND ");
       }
+      
+      query += " ORDER BY nome ASC";
 
       const [rows] = await db.execute(query, params);
 
       return rows.map((row) => new Membro(row));
     } catch (error) {
-      throw new Error("Erro ao buscar membro");
+      console.error("Erro no Repository:", error);
+      throw new Error("Erro ao buscar membros");
     }
   }
 
   async findById(id) {
     try {
-      const [rows] = await db.execute("SELECT * FROM membros WHERE id = ?", [
-        id,
-      ]);
-
+      const [rows] = await db.execute("SELECT * FROM membros WHERE id = ?", [id]);
       if (rows.length === 0) return null;
-
       return new Membro(rows[0]);
     } catch (error) {
       throw new Error(`Erro ao buscar membro: ${error.message}`);
@@ -57,57 +55,34 @@ class MembroRepository {
 
   async create(membroData) {
     try {
-      const {
-        nome,
-        endereco,
-        cidade,
-        email,
-        cpf,
-        nasc,
-        genero,
-        telefone,
-        status,
-      } = membroData;
+      const { nome, endereco, cidade, email, cpf, nasc, genero, telefone, status } = membroData;
 
-      const [existing] = await db.execute(
-        "SELECT id FROM membros WHERE cpf = ?",
-        [cpf]
-      );
-      if (existing.length > 0) {
-        throw new Error("CPF já cadastrado.");
+      if (cpf) {
+          const [existing] = await db.execute("SELECT id FROM membros WHERE cpf = ?", [cpf]);
+          if (existing.length > 0) throw new Error("CPF já cadastrado.");
       }
 
       const [result] = await db.execute(
         "INSERT INTO membros (nome, endereco, cidade, email, cpf, nasc, genero, telefone, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [nome, endereco, cidade, email, cpf, nasc, genero, telefone, status]
+        [nome, endereco, cidade, email, cpf, nasc, genero, telefone, status || 'Ativo']
       );
 
       return await this.findById(result.insertId);
     } catch (error) {
-      throw new Error(`Erro ao criar membro: ${error.message}`);
+      throw error; 
     }
   }
 
   async update(id, membroData) {
     try {
-      const {
-        nome,
-        endereco,
-        cidade,
-        email,
-        cpf,
-        nasc,
-        genero,
-        telefone,
-        status,
-      } = membroData;
+      const { nome, endereco, cidade, email, cpf, nasc, genero, telefone, status } = membroData;
 
-      const [existing] = await db.execute(
-        "SELECT id FROM membros WHERE cpf = ? AND id != ?",
-        [cpf, id]
-      );
-      if (existing.length > 0) {
-        throw new Error("CPF já cadastrado para outro membro.");
+      if (cpf) {
+        const [existing] = await db.execute(
+            "SELECT id FROM membros WHERE cpf = ? AND id != ?",
+            [cpf, id]
+        );
+        if (existing.length > 0) throw new Error("CPF já cadastrado para outro membro.");
       }
 
       await db.execute(
@@ -117,27 +92,13 @@ class MembroRepository {
 
       return await this.findById(id);
     } catch (error) {
-      throw new Error(`Erro ao atualizar membro: ${error.message}`);
-    }
-  }
-
-  async updateStatus(id, status) {
-    try {
-      await db.execute("UPDATE membros SET status = ? WHERE id = ?", [
-        status,
-        id,
-      ]);
-      return await this.findById(id);
-    } catch (error) {
-      throw new Error(`Erro ao atualizar status: ${error.message}`);
+      throw error;
     }
   }
 
   async delete(id) {
     try {
-      const [result] = await db.execute("DELETE FROM membros WHERE id = ?", [
-        id,
-      ]);
+      const [result] = await db.execute("DELETE FROM membros WHERE id = ?", [id]);
       return result.affectedRows > 0;
     } catch (error) {
       throw new Error(`Erro ao deletar membro: ${error.message}`);
@@ -145,4 +106,4 @@ class MembroRepository {
   }
 }
 
-module.exports = new MembroRepository();
+export default new MembroRepository();
