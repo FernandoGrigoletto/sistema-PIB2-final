@@ -115,8 +115,8 @@ const MembroForm = ({ onSave, onCancel, membro: membroToEdit }) => {
       }
     } catch (error) {
       console.error("Erro ao salvar:", error);
-      // Captura a mensagem de erro vinda do backend (ex: "Este CPF já está cadastrado.")
-      const msg = error.response?.data?.message || "Erro ao salvar membro.";
+      // Ajuste para suportar tanto Axios quanto Fetch nativo
+      const msg = error.response?.data?.message || error.message || "Erro ao salvar membro.";
       setErrorMessage(msg);
     }
   };
