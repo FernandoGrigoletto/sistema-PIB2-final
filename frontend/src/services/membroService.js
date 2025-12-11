@@ -2,7 +2,7 @@ const API_BASE_URL = "http://localhost:3000/api/membros";
 
 const handleResponse = async (response) => {
   if (!response.ok) {
-    throw new Error(`HTTP error! cidade: ${response.status}`);
+    throw new Error(HTTP error! cidade: ${response.status});
   }
   const data = await response.json();
   if (!data.success) {
@@ -32,7 +32,7 @@ const getAll = async (filtro = {}) => {
     }
 
     const url = params.toString()
-      ? `${API_BASE_URL}?${params.toString()}`
+      ? ${API_BASE_URL}?${params.toString()}
       : API_BASE_URL;
 
     const response = await fetch(url);
@@ -49,7 +49,7 @@ const getAll = async (filtro = {}) => {
 
 const getById = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(${API_BASE_URL}/${id});
 
     const result = await handleResponse(response);
   } catch (error) {
@@ -90,7 +90,7 @@ const update = async (membro) => {
       ...membro,
     };
 
-    const response = await fetch(`${API_BASE_URL}/${membro.id}`, {
+    const response = await fetch(${API_BASE_URL}/${membro.id}, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -104,14 +104,14 @@ const update = async (membro) => {
       ...result.data,
     };
   } catch (error) {
-    console.error(`Erro ao atualizar membro ${membro.id}`, error);
+    console.error(Erro ao atualizar membro ${membro.id}, error);
     throw error;
   }
 };
 
 const remove = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(${API_BASE_URL}/${id}, {
       method: "DELETE",
     });
 
@@ -119,7 +119,7 @@ const remove = async (id) => {
 
     return result.message;
   } catch (error) {
-    console.error(`Erro ao remover membro ${id}`, error);
+    console.error(Erro ao remover membro ${id}, error);
     throw error;
   }
 };
@@ -130,7 +130,7 @@ const verificarCpfExistente = async (cpf, id = null) => {
     if (id) queryParams.append("id", id);
 
     const response = await fetch(
-      `${API_BASE_URL}/check-cpf?${queryParams.toString()}`
+      ${API_BASE_URL}/check-cpf?${queryParams.toString()}
     );
 
     if (!response.ok) {

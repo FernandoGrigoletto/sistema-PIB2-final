@@ -1,104 +1,113 @@
+mport { Button, Col, Container, Modal, Row } from "react-bootstrap";
+import MembroForm from "../components/MembroForm";
 import { useEffect, useState } from "react";
-import { Container, Table, Button, Card, Badge, Spinner, Alert } from "react-bootstrap";
-import { FaUserPlus, FaUsers, FaUserShield, FaUser } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import apiService from "../services/api";
+import MembroList from "../components/MembroList";
+import membroService from "../services/membroService";
+import MembroFiltro from "../components/MembroFiltro";
 
 const Membros = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [membros, setMembros] = useState([]);
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getAllUsers();
-      setUsers(data);
-    } catch (err) {
-      setError("Erro ao carregar lista de membros.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  const [membroToDelete, setMembroToDelete] = useState(null);
+
+  const [membroToEdit, setMembroToEdit] = useState(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const loadMembro = async () => {
+    // obter do Service
+
+    const dados = await membroService.getAll();
+
+    setMembros(dados);
   };
 
-  const getRoleBadge = (role) => {
-    switch (role) {
-      case 'admin': return <Badge bg="danger">Administrador</Badge>;
-      case 'operador': return <Badge bg="warning" text="dark">Operador</Badge>;
-      default: return <Badge bg="secondary">Membro</Badge>;
+  useEffect(() => {
+    loadMembro();
+  }, []);
+
+  const handleSaveMembro = async (membro) => {
+    if (membro.id > 0) {
+      await membroService.update(membro);
+      await loadMembro();
+    } else {
+      const saved = await membroService.add(membro);
+      setMembros([...membros, saved]);
     }
+
+    setShowForm(false);
+  };
+
+  const handleConfirmDelete = (id) => {
+    setMembroToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleEditMembro = (membro) => {
+    setMembroToEdit(membro);
+    setShowForm(true);
+  };
+
+  const handleDeleteMembro = async () => {
+    await membroService.remove(membroToDelete);
+    await loadMembro();
+    setShowDeleteModal(false);
+    setMembroToDelete(null);
   };
 
   return (
-    <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold text-primary d-flex align-items-center gap-2">
-          <FaUsers /> Gestão de Membros
-        </h2>
-        <Button as={Link} to="/register" variant="success" className="d-flex align-items-center gap-2 shadow-sm">
-          <FaUserPlus /> Novo Usuário
-        </Button>
-      </div>
+    <>
+      <Container className="py-4">
+        <Row className="mb-4">
+          <Col className="d-flex justify-content-between alig-items-center">
+            <h1 className="title">Cadastro de Membros</h1>
+            <Button variant="success" onClick={() => setShowForm(!showForm)}>
+              {showForm ? "Cancelar" : "Adicionar Membro"}
+            </Button>
+          </Col>
+        </Row>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+        {showForm && (
+          <Row className="mb-4">
+            <Col>
+              <MembroForm
+                membro={membroToEdit}
+                onSave={handleSaveMembro}
+                onCancel={() => setShowForm(false)}
+              ></MembroForm>
+            </Col>
+          </Row>
+        )}
 
-      <Card className="border-0 shadow-sm">
-        <Card.Body className="p-0">
-          {loading ? (
-            <div className="text-center p-5">
-              <Spinner animation="border" variant="primary" />
-            </div>
-          ) : (
-            <div className="table-responsive">
-              <Table hover className="mb-0 align-middle">
-                <thead className="bg-light">
-                  <tr>
-                    <th className="py-3 ps-4">Nome</th>
-                    <th>Email</th>
-                    <th>Função</th>
-                    <th className="text-end pe-4">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.length > 0 ? (
-                    users.map((user) => (
-                      <tr key={user.id}>
-                        <td className="ps-4 fw-bold text-dark">
-                          <div className="d-flex align-items-center gap-2">
-                             <div className="bg-light rounded-circle p-2 text-primary d-flex justify-content-center align-items-center" style={{width: '35px', height: '35px'}}>
-                                {user.role === 'admin' ? <FaUserShield /> : <FaUser />}
-                             </div>
-                             {user.nome}
-                          </div>
-                        </td>
-                        <td className="text-muted">{user.email}</td>
-                        <td>{getRoleBadge(user.role)}</td>
-                        <td className="text-end pe-4">
-                          <Button variant="outline-primary" size="sm" disabled title="Editar (Em breve)">
-                            Editar
-                          </Button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="text-center py-5 text-muted">
-                        Nenhum usuário encontrado.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div>
-          )}
-        </Card.Body>
-      </Card>
-    </Container>
+        <MembroFiltro onFiltersChange={setMembros}></MembroFiltro>
+
+        <MembroList
+          membros={membros}
+          onDelete={handleConfirmDelete}
+          onEdit={handleEditMembro}
+        ></MembroList>
+
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmar exclusão</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Tem certeza que deseja excluir este membro?</Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={handleDeleteMembro}>
+              Excluir
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </Container>
+    </>
   );
 };
 

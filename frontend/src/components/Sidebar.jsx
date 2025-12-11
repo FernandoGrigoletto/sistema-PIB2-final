@@ -54,7 +54,7 @@ const Sidebar = () => {
             style={{ width: '45px', height: '45px', objectFit: 'cover' }} 
         />
         <div className="d-flex flex-column">
-          <span className="fs-5 fw-bold text-primary" style={{ lineHeight: '1.1' }}>Igreja<span className="text-dark">Sys</span></span>
+          <span className="fs-5 fw-bold text-primary" style={{ lineHeight: '1.1' }}>Sistema<span className="text-dark">PIB</span></span>
           <small className="text-muted" style={{ fontSize: '0.75rem' }}>Gestão Igreja </small>
         </div>
       </div>
@@ -128,7 +128,13 @@ const Sidebar = () => {
                 <FaUserCircle size={18} /> Usuários do Sistema
               </NavLink>
             </Nav.Item>
+            <Nav.Item>
+              <NavLink to="/membros" className={getNavLinkClass}>
+                <FaUserCircle size={18} /> Membros da Igreja
+              </NavLink>
+            </Nav.Item>
           </>
+          
         )}
       </Nav>
 

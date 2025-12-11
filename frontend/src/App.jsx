@@ -3,7 +3,7 @@ import AuthProvider from './components/AuthProvider';
 import Sidebar from './components/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Footer from './components/Footer';
-
+import Membros from './pages/Membros';
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -70,6 +70,12 @@ function App() {
                 <Route path="/register" element={
                   <ProtectedRoute roles={['admin']}>
                     <RegisterPage />
+                  </ProtectedRoute>
+                } />
+                 {/* Rota de Cadastro apenas para Admin */}
+                <Route path="/membros" element={
+                  <ProtectedRoute roles={['admin']}>
+                    <Membros />
                   </ProtectedRoute>
                 } />
 
