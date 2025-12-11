@@ -66,9 +66,7 @@ const Usuarios = () => {
         <Container className="py-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="text-secondary fw-bold">Gerenciar Usuários</h2>
-                <Button variant="primary" onClick={() => handleOpenModal()}>
-                    <FaUserPlus className="me-2" /> Novo Usuário
-                </Button>
+                
             </div>
 
             <Table responsive hover className="shadow-sm bg-white rounded">

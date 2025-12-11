@@ -1,7 +1,10 @@
 import { Button, Card, Row, Col, Badge } from "react-bootstrap";
 import { FaTrash, FaUser, FaPhone, FaCalendarAlt, FaQuoteLeft } from "react-icons/fa";
 
-const OracaoList = ({ oracao, onDelete, isAdmin }) => { // Recebe isAdmin
+const OracaoList = ({ oracao, onDelete }) => { 
+  // Removemos a dependência de 'isAdmin' para mostrar o contato, 
+  // mas 'onDelete' ainda controla o botão de remover.
+
   if (oracao.length === 0) {
     return (
       <div className="text-center p-5 bg-white rounded shadow-sm">
@@ -37,8 +40,8 @@ const OracaoList = ({ oracao, onDelete, isAdmin }) => { // Recebe isAdmin
 
               <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
                 <small className="text-muted d-flex align-items-center gap-1">
-                  {/* ALTERAÇÃO AQUI: Só mostra se isAdmin for true E tiver contato */}
-                  {isAdmin && item.contato && (
+                  {/* ALTERAÇÃO: Contato agora é exibido sempre que existir, independente de ser admin */}
+                  {item.contato && (
                     <>
                       <FaPhone size={12} /> {item.contato}
                     </>
