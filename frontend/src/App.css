@@ -315,3 +315,31 @@
     font-size: 12px;
   }
 }
+/* Estilos para Impressão */
+@media print {
+  /* Esconde tudo que tiver a classe no-print */
+  .no-print, 
+  .sidebar-container, 
+  .btn, 
+  form {
+    display: none !important;
+  }
+
+  /* Ajusta o layout para ocupar a folha toda */
+  .content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Garante que elementos de impressão apareçam */
+  .d-print-block {
+    display: block !important;
+  }
+
+  /* Remove sombras e bordas desnecessárias */
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

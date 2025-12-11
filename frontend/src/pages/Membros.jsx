@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Container, Row, Col, Button, Modal, Spinner, Alert } from "react-bootstrap";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaFileExcel, FaPrint } from "react-icons/fa"; // Importar ícones novos
+import * as XLSX from 'xlsx'; // Importar biblioteca Excel
 import { useAuth } from "../hooks/useAuth";
 
 import MembroForm from "../components/MembroForm"; 
@@ -10,19 +11,18 @@ import membroService from "../services/membroService";
 
 const Membros = () => {
   const { user } = useAuth();
-  // Regra de permissão: Apenas Admin e Operador podem criar/editar/excluir
   const canManage = user && (user.role === 'admin' || user.role === 'operador');
 
-  // Estados de Dados
-  const [membros, setMembros] = useState([]);
-  const [filtros, setFiltros] = useState({}); // Estado centralizado dos filtros
+  // Estados
+  const [membros, setMembros] = useState([]); 
+  const [membrosFiltrados, setMembrosFiltrados] = useState([]); 
   
-  // Estados de Interface (UI)
+  // UI
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(false); // Feedback de carregamento
-  const [error, setError] = useState("");        // Feedback de erro
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Estados de Ação
+  // Ações
   const [membroToEdit, setMembroToEdit] = useState(null);
   const [membroToDelete, setMembroToDelete] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -32,54 +32,70 @@ const Membros = () => {
     setLoading(true);
     setError("");
     try {
-      // Passamos o estado 'filtros' para o serviço
-      const dados = await membroService.getAll(filtros);
+      const dados = await membroService.getAll(); 
       setMembros(dados);
+      setMembrosFiltrados(dados); 
     } catch (err) {
       console.error("Erro ao carregar membros:", err);
-      setError("Erro ao carregar a lista de membros. Tente novamente.");
+      setError("Erro ao carregar a lista de membros.");
     } finally {
       setLoading(false);
     }
-  }, [filtros]);
+  }, []);
 
-  // Carrega os dados sempre que 'filtros' mudar (incluindo na montagem inicial)
   useEffect(() => {
     fetchMembros();
   }, [fetchMembros]);
 
-
-  // --- HANDLERS (Ações do Usuário) ---
-
-  const handleCreateNew = () => {
-    setMembroToEdit(null);
-    setShowForm(true);
-    setError("");
+  // --- FILTRAGEM LOCAL ---
+  const handleFilter = (filtros) => {
+    const resultado = membros.filter((membro) => {
+      const matchNome = !filtros.nome || (membro.nome && membro.nome.toLowerCase().includes(filtros.nome.toLowerCase()));
+      const matchCidade = !filtros.cidade || (membro.cidade && membro.cidade.toLowerCase().includes(filtros.cidade.toLowerCase()));
+      const matchStatus = !filtros.status || (membro.status === filtros.status);
+      const matchGenero = !filtros.genero || (membro.genero === filtros.genero);
+      return matchNome && matchCidade && matchStatus && matchGenero;
+    });
+    setMembrosFiltrados(resultado);
   };
 
-  const handleEditClick = (membro) => {
-    setMembroToEdit(membro);
-    setShowForm(true);
-    setError("");
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // --- NOVA FUNÇÃO: IMPRIMIR ---
+  const handlePrint = () => {
+    window.print();
   };
 
+  // --- NOVA FUNÇÃO: EXPORTAR EXCEL ---
+  const handleExportExcel = () => {
+    // 1. Formata os dados para o Excel (escolha quais colunas quer exportar)
+    const dadosParaExcel = membrosFiltrados.map(m => ({
+      "Nome Completo": m.nome,
+      "Email": m.email || "-",
+      "Telefone": m.telefone || "-",
+      "Cidade": m.cidade || "-",
+      "Status": m.status,
+      "Gênero": m.genero,
+      "Data Nasc.": m.dataNascimento ? new Date(m.dataNascimento).toLocaleDateString('pt-BR') : "-"
+    }));
+
+    // 2. Cria a planilha
+    const ws = XLSX.utils.json_to_sheet(dadosParaExcel);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Membros");
+
+    // 3. Baixa o arquivo
+    const dataAtual = new Date().toLocaleDateString().replace(/\//g, '-');
+    XLSX.writeFile(wb, `Relatorio_Membros_${dataAtual}.xlsx`);
+  };
+
+  // --- HANDLERS PADRÃO ---
   const handleSaveMembro = async (membro) => {
     try {
-      if (membro.id) {
-        await membroService.update(membro);
-      } else {
-        await membroService.add(membro);
-      }
-      
-      // Recarrega os dados mantendo o filtro atual
-      await fetchMembros();
-      
+      if (membro.id) await membroService.update(membro);
+      else await membroService.add(membro);
+      await fetchMembros(); 
       setShowForm(false);
-      setMembroToEdit(null);
     } catch (err) {
-      console.error("Erro ao salvar:", err);
-      // Repassa o erro para o formulário (ex: para exibir erro de CPF duplicado)
+      console.error(err);
       throw err; 
     }
   };
@@ -88,45 +104,55 @@ const Membros = () => {
     try {
       if (membroToDelete) {
         await membroService.remove(membroToDelete);
-        
-        // Atualiza a lista
         await fetchMembros();
-        
         setShowDeleteModal(false);
-        setMembroToDelete(null);
       }
     } catch (err) {
-      console.error("Erro ao excluir:", err);
-      alert("Não foi possível excluir o membro.");
+      alert("Erro ao excluir.");
     }
   };
 
   return (
     <Container className="py-4">
-      {/* Cabeçalho */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      {/* Cabeçalho com Botões de Ação */}
+      <div className="d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
           <h2 className="mb-0 fw-bold text-secondary">Gestão de Membros</h2>
           <span className="text-muted">Administre os membros da igreja</span>
         </div>
         
-        {canManage && !showForm && (
-          <Button 
-            variant="success" 
-            onClick={handleCreateNew}
-            className="d-flex align-items-center gap-2 shadow-sm"
-          >
-            <FaPlus /> Novo Membro
+        <div className="d-flex gap-2">
+          {/* Botão Imprimir */}
+          <Button variant="outline-secondary" onClick={handlePrint} title="Imprimir Lista">
+            <FaPrint /> <span className="d-none d-md-inline">Imprimir</span>
           </Button>
-        )}
+
+          {/* Botão Excel */}
+          <Button variant="outline-success" onClick={handleExportExcel} title="Baixar Excel">
+            <FaFileExcel /> <span className="d-none d-md-inline">Excel</span>
+          </Button>
+
+          {/* Botão Novo (Só admin/operador) */}
+          {canManage && !showForm && (
+            <Button variant="success" onClick={() => { setMembroToEdit(null); setShowForm(true); }} className="d-flex align-items-center gap-2">
+              <FaPlus /> <span className="d-none d-md-inline">Novo</span>
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Alerta de Erro Global */}
-      {error && <Alert variant="danger" onClose={() => setError("")} dismissible>{error}</Alert>}
+      {/* Título visível apenas na impressão */}
+      <div className="d-none d-print-block text-center mb-4">
+        <h3>Relatório de Membros - PIB</h3>
+        <p>Gerado em: {new Date().toLocaleString()}</p>
+        <p>Total de registros: {membrosFiltrados.length}</p>
+        <hr />
+      </div>
 
-      {/* Formulário (Visível apenas quando showForm for true) */}
+      {error && <Alert variant="danger" onClose={() => setError("")} dismissible className="no-print">{error}</Alert>}
+
       {showForm && (
-        <Row className="mb-4">
+        <Row className="mb-4 no-print"> {/* Adicionado no-print para não sair form na impressão */}
           <Col>
             <MembroForm
               membro={membroToEdit}
@@ -137,40 +163,36 @@ const Membros = () => {
         </Row>
       )}
 
-      {/* Filtros */}
-      {/* Ao digitar no filtro, setFiltros atualiza -> fetchMembros roda -> lista atualiza */}
-      <MembroFiltro onFilterChange={setFiltros} />
+      {/* Filtros (Escondidos na impressão) */}
+      <div className="no-print">
+        <MembroFiltro onFiltersChange={handleFilter} />
+      </div>
 
-      {/* Lista de Membros */}
       <Row>
         <Col>
           {loading ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="primary" />
-              <p className="mt-2 text-muted">Carregando dados...</p>
-            </div>
+            <div className="text-center py-5"><Spinner animation="border" variant="primary" /></div>
           ) : (
             <MembroList 
-              membros={membros}
+              membros={membrosFiltrados} 
               onDelete={canManage ? (id) => { setMembroToDelete(id); setShowDeleteModal(true); } : null}
-              onEdit={canManage ? handleEditClick : null}
+              onEdit={canManage ? (m) => { setMembroToEdit(m); setShowForm(true); window.scrollTo(0,0); } : null}
             />        
           )}
         </Col>
       </Row>
 
-      {/* Modal de Confirmação de Exclusão */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton className="bg-danger text-white">
-          <Modal.Title>Confirmar Exclusão</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="py-4 text-center">
-            <p className="lead mb-0">Tem certeza que deseja remover este membro permanentemente?</p>
-            <small className="text-muted">Esta ação não pode ser desfeita.</small>
-        </Modal.Body>
+      {/* Rodapé da impressão com contagem */}
+      <div className="d-none d-print-block mt-4 text-end">
+        <small>Fim do relatório.</small>
+      </div>
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} className="no-print">
+        <Modal.Header closeButton className="bg-danger text-white"><Modal.Title>Confirmar Exclusão</Modal.Title></Modal.Header>
+        <Modal.Body>Tem certeza que deseja excluir?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</Button>
-          <Button variant="danger" onClick={handleDeleteMembro}>Excluir Membro</Button>
+          <Button variant="danger" onClick={handleDeleteMembro}>Excluir</Button>
         </Modal.Footer>
       </Modal>
     </Container>

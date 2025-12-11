@@ -1,107 +1,53 @@
 import { useState, useEffect } from "react";
-import { Card, Form, Button, Row, Col } from "react-bootstrap";
-import membroService from "../services/membroService";
+import { Card, Form, Row, Col } from "react-bootstrap";
 
 function MembroFiltro({ onFiltersChange }) {
-  const [membroFilters, setMembroFilters] = useState({
-    genero: "",
-    status: "",
-    cidade: "",
+  const [localFilters, setLocalFilters] = useState({
     nome: "",
+    cidade: "",
+    status: "",
+    genero: "",
   });
 
-  const handleInputChange = (mem) => {
-    const { name, value } = mem.target;
-    setMembroFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const aplicarFiltros = async () => {
-    try {
-      // Chama o serviço passando os filtros atuais
-      const data = await membroService.getAll(membroFilters);
-
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Atualiza estado local
+    setLocalFilters((prev) => {
+      const novosFiltros = { ...prev, [name]: value };
+      
+      // Envia IMEDIATAMENTE para o pai filtrar
       if (onFiltersChange) {
-        onFiltersChange(data);
+        onFiltersChange(novosFiltros);
       }
-      console.log("Dados filtrados: ", data);
-    } catch (error) {
-      console.error("Erro ao filtrar:", error);
-    }
+      return novosFiltros;
+    });
   };
-
-  // Aplica filtros automaticamente sempre que um campo muda
-  useEffect(() => {
-    // Debounce opcional: você pode adicionar um setTimeout aqui se quiser evitar muitas chamadas
-    aplicarFiltros();
-  }, [membroFilters]);
 
   return (
     <Card className="mb-4 shadow-sm border-0">
-      <Card.Header className="bg-white border-bottom py-3">
-        <h5 className="mb-0 fw-bold text-primary">Filtros de Pesquisa</h5>
-      </Card.Header>
-
-      <Card.Body>
+      <Card.Body className="bg-light rounded">
         <Row className="g-3">
           <Col md={4}>
-            <Form.Group>
-              <Form.Label className="text-muted small fw-bold">Nome</Form.Label>
-              <Form.Control
-                type="text"
-                name="nome"
-                placeholder="Buscar por nome..."
-                value={membroFilters.nome}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
+            <Form.Control name="nome" placeholder="Buscar por Nome..." value={localFilters.nome} onChange={handleInputChange} />
           </Col>
-
           <Col md={3}>
-            <Form.Group>
-              <Form.Label className="text-muted small fw-bold">Cidade</Form.Label>
-              <Form.Control
-                type="text"
-                name="cidade"
-                placeholder="Cidade..."
-                value={membroFilters.cidade}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
+            <Form.Control name="cidade" placeholder="Cidade..." value={localFilters.cidade} onChange={handleInputChange} />
           </Col>
-
           <Col md={2}>
-            <Form.Group>
-              <Form.Label className="text-muted small fw-bold">Status</Form.Label>
-              <Form.Select
-                name="status"
-                value={membroFilters.status}
-                onChange={handleInputChange}
-              >
-                <option value="">Todos</option>
-                <option value="Ativo">Ativo</option>
-                <option value="Inativo">Inativo</option>
-                <option value="Ausente">Ausente</option>
-                <option value="Visitante">Visitante</option>
-              </Form.Select>
-            </Form.Group>
+            <Form.Select name="status" value={localFilters.status} onChange={handleInputChange}>
+              <option value="">Status (Todos)</option>
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+              <option value="Visitante">Visitante</option>
+            </Form.Select>
           </Col>
-
           <Col md={3}>
-            <Form.Group>
-              <Form.Label className="text-muted small fw-bold">Gênero</Form.Label>
-              <Form.Select
-                name="genero"
-                value={membroFilters.genero}
-                onChange={handleInputChange}
-              >
-                <option value="">Todos</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Feminino">Feminino</option>
-              </Form.Select>
-            </Form.Group>
+            <Form.Select name="genero" value={localFilters.genero} onChange={handleInputChange}>
+              <option value="">Gênero (Todos)</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+            </Form.Select>
           </Col>
         </Row>
       </Card.Body>
