@@ -12,7 +12,9 @@ import Eventos from './pages/Eventos';
 import EventoDetalhe from './pages/EventoDetalhe';
 import Oracao from './pages/Oracao';
 import FluxoCaixa from './pages/FluxoCaixa';
-import Help from './pages/Help'; 
+import Help from './pages/Help';
+import Usuarios from './pages/Usuarios';
+import PedidosOracao from './pages/PedidosOracao';
 
 import './App.css';
 
@@ -34,11 +36,28 @@ function App() {
                 <Route path="/eventos" element={<Eventos />} />
                 <Route path="/evento/:id" element={<EventoDetalhe />} />
                 
-                {/* Rota de Oração */}
+                {/* Rota de Oração (Mural Público) */}
                 <Route path="/oracao" element={<Oracao />} />
 
-                {/* Nova Rota de Ajuda (Pública) - Proteção removida conforme comentário */}
-                <Route path="/ajuda" element={<Help />} />
+                {/* 2. NOVA ROTA DE GESTÃO DE ORAÇÃO (Protegida) */}
+                <Route path="/pedidos-oracao" element={
+                  <ProtectedRoute roles={['admin', 'operador']}>
+                    <PedidosOracao />
+                  </ProtectedRoute>
+                } />
+
+                {/* Nova Rota de Ajuda */}
+                <Route path="/ajuda" element={
+                  <ProtectedRoute roles={['admin', 'operador']}>
+                    <Help />
+                  </ProtectedRoute>
+                  } />
+                {/* Rota de Usuários apenas para Admin */}
+                  <Route path="/usuarios" element={
+                  <ProtectedRoute roles={['admin']}>
+                   <Usuarios />
+                   </ProtectedRoute>
+                  } />
 
                 {/* Rotas de Admin */}
                 <Route path="/fluxo-caixa" element={

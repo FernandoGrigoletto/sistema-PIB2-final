@@ -12,6 +12,7 @@ import authRoutes from './routes/auth.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import userRoutes from './routes/userRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +40,7 @@ app.use('/api/fluxo', fluxoRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => res.send('API Online 🚀'));
-
+app.use('/api/users', userRoutes);
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

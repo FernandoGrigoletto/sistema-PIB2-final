@@ -37,8 +37,8 @@ const Sidebar = () => {
   // Função auxiliar para checar acesso
   const hasAccess = (permissionKey) => {
     if (!user) return false;
-    if (isAdmin) return true; // Admin tem tudo
-    // Se for operador, verifica o objeto permissions
+    if (isAdmin) return true; // Admin tem acesso total
+    // Se for operador, verifica o objeto permissions (se existir)
     return user.permissions && user.permissions[permissionKey] === true;
   };
 
@@ -66,7 +66,7 @@ const Sidebar = () => {
           </NavLink>
         </Nav.Item>
 
-        {/* Link Eventos: Visível se tiver permissão 'eventos' ou for admin */}
+        {/* Link Eventos */}
         <Nav.Item>
           <NavLink to="/eventos" className={getNavLinkClass}>
             <FaCalendarAlt size={18} /> Eventos
@@ -116,11 +116,19 @@ const Sidebar = () => {
 
         {/* Cadastro de Usuário (Apenas Admin pode criar outros) */}
         {isAdmin && (
-          <Nav.Item>
-            <NavLink to="/register" className={getNavLinkClass}>
-              <FaUserPlus size={18} /> Novo Usuário
-            </NavLink>
-          </Nav.Item>
+          /* CORREÇÃO AQUI: Adicionado <> para agrupar os itens */
+          <>
+            <Nav.Item>
+              <NavLink to="/register" className={getNavLinkClass}>
+                <FaUserPlus size={18} /> Novo Usuário
+              </NavLink>
+            </Nav.Item>
+            <Nav.Item>
+              <NavLink to="/usuarios" className={getNavLinkClass}>
+                <FaUserCircle size={18} /> Usuários do Sistema
+              </NavLink>
+            </Nav.Item>
+          </>
         )}
       </Nav>
 
