@@ -77,9 +77,7 @@ const Usuarios = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="text-secondary fw-bold">Gerenciar Usuários</h2>
                 {/* CORREÇÃO: Botão adicionado aqui */}
-                <Button variant="primary" onClick={() => handleOpenModal()} className="d-flex align-items-center gap-2">
-                    <FaUserPlus /> Novo Usuário
-                </Button>
+                
             </div>
 
             <Table responsive hover className="shadow-sm bg-white rounded align-middle">

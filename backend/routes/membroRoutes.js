@@ -1,26 +1,18 @@
-const express = require("express");
-const membrosController = require("../controllers/membrosController");
+import { Router } from 'express';
+import { getAllMembros, createMembro, updateMembro, deleteMembro } from '../controllers/membroController.js';
+import { authenticate } from '../middlewares/auth.js';
+import { checkRole } from '../middlewares/roleMiddleware.js';
 
-const router = express.Router();
+const router = Router();
 
-// Rotas crud
+// Todas as rotas de membros são protegidas (precisa estar logado)
+// Apenas 'admin' e 'operador' podem gerenciar membros
+router.use(authenticate); 
+router.use(checkRole(['admin', 'operador']));
 
-router.get("/", membrosController.getAll);
+router.get('/', getAllMembros);
+router.post('/', createMembro);
+router.put('/:id', updateMembro);
+router.delete('/:id', deleteMembro);
 
-router.get("/:id", membrosController.getById);
-
-router.post("/", membrosController.create);
-
-router.put("/:id", membrosController.update);
-
-router.delete("/:id", membrosController.delete);
-
-// validar cpf existente
-
-router.get("/check-cpf", membrosController.checkCpf);
-
-// rota especifica para atualizar status
-
-router.patch("/:id/status", membrosController.updateStatus);
-
-module.exports = router;
+export default router;

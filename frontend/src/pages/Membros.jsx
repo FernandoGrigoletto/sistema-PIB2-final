@@ -1,113 +1,111 @@
-import { Button, Col, Container, Modal, Row } from "react-bootstrap";
-import MembroForm from "../components/MembroForm";
-import { useEffect, useState } from "react";
+import { Button, Col, Container, Row, Modal } from "react-bootstrap";
+import { useState, useEffect } from "react"; // Removido filtro local
+import { FaPlus } from "react-icons/fa";
+import { useAuth } from "../hooks/useAuth";
+
+import MembroForm from "../components/MembroForm"; 
+import membroService from "../services/membroService"; 
 import MembroList from "../components/MembroList";
-import membroService from "../services/membroService";
-import MembroFiltro from "../components/MembroFiltro";
+import MembroFiltro from "../components/MembroFiltro"; // <--- IMPORTAR
 
 const Membros = () => {
+  const { user } = useAuth();
+  const canManage = user && (user.role === 'admin' || user.role === 'operador');
+
   const [showForm, setShowForm] = useState(false);
-
-  const [membros, setMembros] = useState([]);
-
+  const [membros, setMembros] = useState([]); // A lista exibida vem direto do filtro
+  
   const [membroToDelete, setMembroToDelete] = useState(null);
-
   const [membroToEdit, setMembroToEdit] = useState(null);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const loadMembro = async () => {
-    // obter do Service
-
-    const dados = await membroService.getAll();
-
-    setMembros(dados);
-  };
-
-  useEffect(() => {
-    loadMembro();
-  }, []);
+  // NOTA: O useEffect de loadMembros inicial foi removido pois o 
+  // MembroFiltro já roda uma vez ao montar e carrega os dados iniciais.
 
   const handleSaveMembro = async (membro) => {
-    if (membro.id > 0) {
-      await membroService.update(membro);
-      await loadMembro();
-    } else {
-      const saved = await membroService.add(membro);
-      setMembros([...membros, saved]);
+    try {
+      if (membro.id) {
+        await membroService.update(membro);
+      } else {
+        await membroService.add(membro);
+      }
+      // Recarrega dados (pode ser melhorado para recarregar com filtros atuais)
+      const dados = await membroService.getAll(); 
+      setMembros(dados);
+      
+      setShowForm(false);
+      setMembroToEdit(null);
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
     }
-
-    setShowForm(false);
-  };
-
-  const handleConfirmDelete = (id) => {
-    setMembroToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const handleEditMembro = (membro) => {
-    setMembroToEdit(membro);
-    setShowForm(true);
   };
 
   const handleDeleteMembro = async () => {
-    await membroService.remove(membroToDelete);
-    await loadMembro();
-    setShowDeleteModal(false);
-    setMembroToDelete(null);
+    try {
+        await membroService.remove(membroToDelete);
+        // Atualiza a lista visualmente removendo o item
+        setMembros(prev => prev.filter(m => m.id !== membroToDelete));
+        setShowDeleteModal(false);
+        setMembroToDelete(null);
+    } catch (error) {
+        console.error("Erro ao excluir:", error);
+    }
   };
 
   return (
-    <>
-      <Container className="py-4">
+    <Container className="py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="mb-0 fw-bold text-secondary">Gestão de Membros</h2>
+          <span className="text-muted">Administre os membros da igreja</span>
+        </div>
+        
+        {canManage && (
+          <Button 
+            variant="success" 
+            onClick={() => { setMembroToEdit(null); setShowForm(!showForm); }}
+            className="d-flex align-items-center gap-2"
+          >
+            {showForm ? "Cancelar" : <><FaPlus /> Novo Membro</>}
+          </Button>
+        )}
+      </div>
+
+      {showForm && (
         <Row className="mb-4">
-          <Col className="d-flex justify-content-between alig-items-center">
-            <h1 className="title">Cadastro de Membros</h1>
-            <Button variant="success" onClick={() => setShowForm(!showForm)}>
-              {showForm ? "Cancelar" : "Adicionar Membro"}
-            </Button>
+          <Col>
+            <MembroForm
+              membro={membroToEdit}
+              onSave={handleSaveMembro}
+              onCancel={() => setShowForm(false)}
+            />
           </Col>
         </Row>
+      )}
 
-        {showForm && (
-          <Row className="mb-4">
-            <Col>
-              <MembroForm
-                membro={membroToEdit}
-                onSave={handleSaveMembro}
-                onCancel={() => setShowForm(false)}
-              ></MembroForm>
-            </Col>
-          </Row>
-        )}
+      {/* NOVO COMPONENTE DE FILTRO */}
+      {/* Ele atualiza o estado 'membros' sempre que os filtros mudam */}
+      <MembroFiltro onFiltersChange={setMembros} />
 
-        <MembroFiltro onFiltersChange={setMembros}></MembroFiltro>
-
-        <MembroList
+      <Row>
+        <MembroList 
           membros={membros}
-          onDelete={handleConfirmDelete}
-          onEdit={handleEditMembro}
-        ></MembroList>
+          onDelete={canManage ? (id) => { setMembroToDelete(id); setShowDeleteModal(true); } : null}
+          onEdit={canManage ? (m) => { setMembroToEdit(m); setShowForm(true); } : null}
+        />        
+      </Row>
 
-        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirmar exclusão</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>Tem certeza que deseja excluir este membro?</Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowDeleteModal(false)}
-            >
-              Cancelar
-            </Button>
-            <Button variant="danger" onClick={handleDeleteMembro}>
-              Excluir
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </Container>
-    </>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar exclusão</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Tem certeza que deseja remover este membro?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</Button>
+          <Button variant="danger" onClick={handleDeleteMembro}>Excluir Membro</Button>
+        </Modal.Footer>
+      </Modal>
+    </Container>
   );
 };
 
