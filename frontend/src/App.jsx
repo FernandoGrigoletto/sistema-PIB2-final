@@ -12,8 +12,7 @@ import Eventos from './pages/Eventos';
 import EventoDetalhe from './pages/EventoDetalhe';
 import Oracao from './pages/Oracao';
 import FluxoCaixa from './pages/FluxoCaixa';
-import Help from './pages/Help';
-import PedidosOracao from './pages/PedidosOracao'; // <--- IMPORTAR A NOVA PÁGINA
+import Help from './pages/Help'; 
 
 import './App.css';
 
@@ -31,18 +30,15 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
                 
+                {/* Eventos */}
                 <Route path="/eventos" element={<Eventos />} />
                 <Route path="/evento/:id" element={<EventoDetalhe />} />
                 
-                {/* Página Pública de Pedido (Formulário) */}
+                {/* Rota de Oração */}
                 <Route path="/oracao" element={<Oracao />} />
 
-                {/* Rota de Ajuda */}
-                <Route path="/ajuda" element={
-                  <ProtectedRoute roles={['admin', 'operador']}>
-                    <Help />
-                  </ProtectedRoute>
-                } />
+                {/* Nova Rota de Ajuda (Pública) - Proteção removida conforme comentário */}
+                <Route path="/ajuda" element={<Help />} />
 
                 {/* Rotas de Admin */}
                 <Route path="/fluxo-caixa" element={
@@ -51,13 +47,7 @@ function App() {
                   </ProtectedRoute>
                 } />
 
-                {/* --- NOVA ROTA: LISTA DE ORAÇÕES (ADMIN) --- */}
-                <Route path="/pedidos-oracao" element={
-                  <ProtectedRoute roles={['admin', 'operador']}>
-                    <PedidosOracao />
-                  </ProtectedRoute>
-                } />
-
+                {/* Rota de Cadastro apenas para Admin */}
                 <Route path="/register" element={
                   <ProtectedRoute roles={['admin']}>
                     <RegisterPage />
