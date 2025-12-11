@@ -7,7 +7,6 @@ const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
     database: process.env.DB_NAME || 'evento_db',
-
     port: process.env.DB_PORT || 3307, 
     password: process.env.DB_PASSWORD || '',
     waitForConnections: true,
@@ -24,6 +23,10 @@ const testConnection = async () => {
         connection.release();
     } catch (error) {
         console.error('❌ Erro ao conectar ao MySQL:', error.message);
+        
+        if (error.code === 'ECONNREFUSED') {
+            console.error('⚠️  Dica: Verifique se o XAMPP/MySQL está ligado e se a porta correta é a ' + dbConfig.port);
+        }
     }
 };
 

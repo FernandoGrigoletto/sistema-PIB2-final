@@ -43,7 +43,7 @@ export async function Login(req, res) {
                 nome: user.nome, 
                 email: user.email, 
                 role: user.role,
-                permissions: permissions // <--- Retorna permissões
+                permissions: permissions 
             } 
         });
 
@@ -55,7 +55,6 @@ export async function Login(req, res) {
 
 // Cadastro (Atualizado para aceitar Role e Permissões)
 export async function Register(req, res) {
-    // Agora aceita role e permissions do corpo da requisição
     const { nome, email, password, role, permissions } = req.body;
 
     if (!nome || !email || !password) {
@@ -100,7 +99,6 @@ export async function getMe(req, res) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
         }
 
-        // Parse do JSON de permissões antes de enviar
         try {
             user.permissions = user.permissions ? JSON.parse(user.permissions) : {};
         } catch (e) {
@@ -113,26 +111,54 @@ export async function getMe(req, res) {
     }
 }
 
-// Logout e ForgotPassword permanecem iguais...
+// Logout
 export async function Logout(req, res) {
     res.clearCookie('auth_token');
     return res.json({ success: true, message: 'Logout realizado' });
 }
 
+// ForgotPassword
 export async function ForgotPassword(req, res) {
-    // ... (mesmo código anterior)
     const { email } = req.body;
     try {
         const [user] = await db.execute('SELECT id, nome FROM users WHERE email = ?', [email]);
         if (user.length === 0) return res.json({ success: true, message: 'Se o e-mail existir, você receberá um link.' });
+        
         const token = crypto.randomBytes(20).toString('hex');
         const now = new Date();
         now.setHours(now.getHours() + 1);
+        
         await db.execute('UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?', [token, now, user[0].id]);
+        
         const resetLink = `http://localhost:5173/reset-password/${token}`;
         console.log(`Link: ${resetLink}`);
+        
         return res.json({ success: true, message: 'Link de recuperação enviado (verifique o console).' });
     } catch (error) {
         return res.status(500).json({ error: 'Erro ao processar solicitação.' });
+    }
+}
+
+// --- AQUI ESTÁ A FUNÇÃO QUE FALTAVA ---
+// Listar todos os utilizadores (Necessário para a rota /users)
+export async function getAllUsers(req, res) {
+    try {
+        // Incluindo role e permissions na listagem
+        const [users] = await db.execute('SELECT id, nome, email, role, permissions FROM users');
+        
+        // Opcional: fazer parse das permissões para cada usuário antes de enviar
+        const usersFormatted = users.map(user => {
+            try {
+                user.permissions = user.permissions ? JSON.parse(user.permissions) : {};
+            } catch (e) {
+                user.permissions = {};
+            }
+            return user;
+        });
+
+        return res.json(usersFormatted);
+    } catch (error) {
+        console.error("Erro ao listar usuários:", error);
+        return res.status(500).json({ error: 'Erro ao buscar usuários' });
     }
 }
