@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 import { FaPaperPlane, FaUser, FaEnvelope } from 'react-icons/fa';
 
 const OracaoForm = ({ onSave }) => {
   const [nome, setNome] = useState('');
-  const [email, setEmail] = useState(''); // Opcional, caso queira contato
+  const [email, setEmail] = useState(''); // Estado continua chamando email para facilitar a leitura
   const [pedido, setPedido] = useState('');
   const [anonimo, setAnonimo] = useState(false);
   const [validated, setValidated] = useState(false);
@@ -21,10 +21,12 @@ const OracaoForm = ({ onSave }) => {
 
     const oracaoData = {
       nome: anonimo ? 'Anônimo' : nome,
-      email: anonimo ? '' : email,
+      // CORREÇÃO AQUI: Mudamos a chave de 'email' para 'contato'
+      contato: anonimo ? '' : email, 
       pedido,
-      data: new Date().toISOString(),
-      status: 'pendente' // Status inicial
+      // CORREÇÃO AQUI: Formatamos a data para YYYY-MM-DD (padrão do MySQL)
+      data: new Date().toISOString().split('T')[0],
+      status: 'pendente' 
     };
 
     onSave(oracaoData);
@@ -76,7 +78,7 @@ const OracaoForm = ({ onSave }) => {
           </Form.Group>
         </Col>
 
-        {/* Campo Email (Escondido se for anônimo para simplificar) */}
+        {/* Campo Email (Escondido se for anônimo) */}
         {!anonimo && (
           <Col md={6}>
             <Form.Group controlId="formEmail">
@@ -96,18 +98,18 @@ const OracaoForm = ({ onSave }) => {
           </Col>
         )}
 
-        {/* Campo Pedido - O PRINCIPAL (Aumentado) */}
+        {/* Campo Pedido - O PRINCIPAL */}
         <Col xs={12}>
           <Form.Group controlId="formPedido" className="mt-2">
             <Form.Label className="fw-bold text-secondary small text-uppercase">Sua Oração</Form.Label>
             <Form.Control
               as="textarea"
-              rows={8} // Aumentado para 8 linhas
+              rows={8} 
               placeholder="Escreva aqui seu pedido de oração, agradecimento ou desabafo..."
               value={pedido}
               onChange={(e) => setPedido(e.target.value)}
               required
-              size="lg" // Fonte maior
+              size="lg" 
               className="bg-light shadow-sm"
               style={{ resize: 'none', lineHeight: '1.6' }}
             />

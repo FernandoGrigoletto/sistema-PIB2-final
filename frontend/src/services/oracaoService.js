@@ -1,13 +1,28 @@
 const API_BASE_URL ='http://localhost:3000/api/oracoes'
 
-const handleResponse = async (response)=>{
-    if (!response.ok){
-        throw new Error(`HTTP error! status: ${response.status}`)
+const handleResponse = async (response) => {
+    // Tenta ler o corpo da resposta como JSON, pois o backend envia detalhes do erro lá
+    let data;
+    try {
+        data = await response.json();
+    } catch (error) {
+        // Se não for JSON (ex: servidor caiu completamente), mantém erro genérico
+        data = null; 
     }
-    const data = await response.json();
-    if(!data.success){
+
+    if (!response.ok) {
+        // Usa a mensagem do backend se existir (data.message), senão usa o status genérico
+        const errorMessage = (data && data.message) 
+            ? data.message 
+            : `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+    }
+
+    // Verifica a flag de sucesso lógica da sua API
+    if (data && !data.success) {
         throw new Error(data.message || 'Erro na requisição');
     }
+
     return data;
 }
 
